@@ -39,6 +39,7 @@ const translations: Translations = {
     "details.photoLabel": "फोटो जोड़ें",
     "details.photoHint": "वैकल्पिक। समस्या समझने में मदद करता है।",
     "details.removePhoto": "फोटो हटाएं",
+    "details.reuploadPhoto": "फोटो फिर से अपलोड करें",
     "details.voiceLabel": "आवाज़ से लिखें",
     "details.voiceStart": "बोलने के लिए टैप करें",
     "details.voiceStop": "रुकने के लिए टैप करें",
