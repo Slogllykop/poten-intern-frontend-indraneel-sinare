@@ -103,6 +103,12 @@ const translations: Translations = {
     "a11y.photoPreview": "संलग्न फोटो का पूर्वावलोकन",
     "a11y.voiceInputActive": "आवाज़ इनपुट चालू है, अब बोलें",
     "a11y.languageToggle": "भाषा बदलें",
+
+    // 404 Not Found
+    "notFound.title": "पृष्ठ नहीं मिला",
+    "notFound.description":
+        "वह पृष्ठ जिसे आप ढूंढ रहे हैं वह मौजूद नहीं है या हटा दिया गया है।",
+    "notFound.backHome": "मुख्य पृष्ठ पर जाएं",
 } as const;
 
 export default translations;

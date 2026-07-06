@@ -104,6 +104,12 @@ const translations = {
     "a11y.photoPreview": "Preview of attached photo",
     "a11y.voiceInputActive": "Voice input is active, speak now",
     "a11y.languageToggle": "Switch language",
+
+    // 404 Not Found
+    "notFound.title": "Page Not Found",
+    "notFound.description":
+        "The page you are looking for does not exist or has been moved.",
+    "notFound.backHome": "Back to Home",
 } as const;
 
 export type TranslationKeys = keyof typeof translations;
