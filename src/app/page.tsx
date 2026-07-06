@@ -14,16 +14,17 @@ import { useStepNavigation } from "@/hooks/step-context";
 export default function Home() {
     const { currentStep, direction } = useStepNavigation();
 
+    const SCREENS: Record<string, React.ReactNode> = {
+        category: <CategoryScreen />,
+        details: <DetailsScreen />,
+        confirmation: <ConfirmationScreen />,
+        tracker: <TrackerScreen />,
+    };
+
     return (
         <AppShell>
             <ScreenTransition stepKey={currentStep} direction={direction}>
-                {currentStep === "category" && <CategoryScreen />}
-
-                {currentStep === "details" && <DetailsScreen />}
-
-                {currentStep === "confirmation" && <ConfirmationScreen />}
-
-                {currentStep === "tracker" && <TrackerScreen />}
+                {SCREENS[currentStep]}
             </ScreenTransition>
         </AppShell>
     );

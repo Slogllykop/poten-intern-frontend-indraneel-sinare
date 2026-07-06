@@ -2,7 +2,7 @@ import type { Translations } from "./en";
 
 const translations: Translations = {
     // App
-    "app.title": "नागरिक रिपोर्टर",
+    "app.title": "Novus",
     "app.description": "अपने आस-पास की नागरिक समस्याओं की रिपोर्ट करें",
 
     // Navigation
@@ -82,6 +82,7 @@ const translations: Translations = {
     "offline.banner":
         "आप ऑफ़लाइन हैं। रिपोर्ट स्थानीय रूप से सहेजी जाएंगी और दोबारा जुड़ने पर सिंक होंगी।",
     "offline.synced": "सभी रिपोर्ट सिंक हो गईं",
+    "offline.backOnline": "वापस ऑनलाइन",
 
     // Errors
     "error.submissionFailed": "रिपोर्ट सहेजने में विफल। कृपया पुनः प्रयास करें।",

@@ -1,14 +1,9 @@
 "use client";
 
 import { useLanguage } from "@/i18n";
+import { FLOW_STEPS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { Step } from "@/types";
-
-const STEPS: { key: Step; labelKey: string }[] = [
-    { key: "category", labelKey: "step.category" },
-    { key: "details", labelKey: "step.details" },
-    { key: "confirmation", labelKey: "step.confirmation" },
-];
 
 interface StepIndicatorProps {
     currentStep: Step;
@@ -22,7 +17,7 @@ interface StepIndicatorProps {
  */
 export function StepIndicator({ currentStep, className }: StepIndicatorProps) {
     const { t } = useLanguage();
-    const currentIndex = STEPS.findIndex((s) => s.key === currentStep);
+    const currentIndex = FLOW_STEPS.indexOf(currentStep);
 
     if (currentIndex === -1) {
         return null;
@@ -32,17 +27,17 @@ export function StepIndicator({ currentStep, className }: StepIndicatorProps) {
         <nav
             aria-label={t("a11y.stepProgress", {
                 current: String(currentIndex + 1),
-                total: String(STEPS.length),
+                total: String(FLOW_STEPS.length),
             })}
             className={cn("flex items-center justify-center gap-3", className)}
         >
-            {STEPS.map((step, index) => {
+            {FLOW_STEPS.map((stepKey, index) => {
                 const isCompleted = index < currentIndex;
                 const isActive = index === currentIndex;
 
                 return (
                     <div
-                        key={step.key}
+                        key={stepKey}
                         className="flex flex-col items-center gap-1.5"
                     >
                         {/* Dot */}
@@ -58,7 +53,7 @@ export function StepIndicator({ currentStep, className }: StepIndicatorProps) {
                                 )}
                             />
                             {/* Connector line (not after the last dot) */}
-                            {index < STEPS.length - 1 && (
+                            {index < FLOW_STEPS.length - 1 && (
                                 <div
                                     className={cn(
                                         "h-0.25 w-8 transition-colors duration-300",
@@ -78,7 +73,7 @@ export function StepIndicator({ currentStep, className }: StepIndicatorProps) {
                                     : "text-muted-foreground",
                             )}
                         >
-                            {t(step.labelKey as Parameters<typeof t>[0])}
+                            {t(`step.${stepKey}` as Parameters<typeof t>[0])}
                         </span>
                     </div>
                 );

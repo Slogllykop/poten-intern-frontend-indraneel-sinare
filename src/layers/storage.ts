@@ -10,12 +10,8 @@
  * the critical path lighter.
  */
 
+import { STORAGE_CONSTANTS } from "@/lib/constants";
 import type { Submission, SubmissionStatus } from "@/types";
-
-const DB_NAME = "civic-reporter-db";
-const DB_VERSION = 1;
-const STORE_NAME = "submissions";
-const LS_KEY = "civic-reporter-submissions";
 
 // ---------------------------------------------------------------------------
 // IndexedDB helpers
@@ -39,15 +35,21 @@ function openDB(): Promise<IDBDatabase> {
     if (dbPromise) return dbPromise;
 
     dbPromise = new Promise<IDBDatabase>((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        const request = indexedDB.open(
+            STORAGE_CONSTANTS.DB_NAME,
+            STORAGE_CONSTANTS.DB_VERSION,
+        );
 
         request.onupgradeneeded = () => {
             const db = request.result;
-            if (!db.objectStoreNames.contains(STORE_NAME)) {
-                const store = db.createObjectStore(STORE_NAME, {
-                    keyPath: "id",
-                    autoIncrement: true,
-                });
+            if (!db.objectStoreNames.contains(STORAGE_CONSTANTS.STORE_NAME)) {
+                const store = db.createObjectStore(
+                    STORAGE_CONSTANTS.STORE_NAME,
+                    {
+                        keyPath: "id",
+                        autoIncrement: true,
+                    },
+                );
                 store.createIndex("status", "status", { unique: false });
                 store.createIndex("createdAt", "createdAt", { unique: false });
             }
@@ -72,8 +74,8 @@ async function withStore<T>(
 ): Promise<T> {
     const db = await openDB();
     return new Promise<T>((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, mode);
-        const store = tx.objectStore(STORE_NAME);
+        const tx = db.transaction(STORAGE_CONSTANTS.STORE_NAME, mode);
+        const store = tx.objectStore(STORAGE_CONSTANTS.STORE_NAME);
         const request = fn(store);
 
         request.onsuccess = () => resolve(request.result);
@@ -87,7 +89,7 @@ async function withStore<T>(
 
 function lsRead(): Submission[] {
     try {
-        const raw = localStorage.getItem(LS_KEY);
+        const raw = localStorage.getItem(STORAGE_CONSTANTS.LS_KEY);
         return raw ? (JSON.parse(raw) as Submission[]) : [];
     } catch {
         return [];
@@ -96,7 +98,10 @@ function lsRead(): Submission[] {
 
 function lsWrite(submissions: Submission[]): void {
     try {
-        localStorage.setItem(LS_KEY, JSON.stringify(submissions));
+        localStorage.setItem(
+            STORAGE_CONSTANTS.LS_KEY,
+            JSON.stringify(submissions),
+        );
     } catch {
         // storage full or private browsing - silent fail
     }
@@ -156,8 +161,8 @@ export async function getPendingSubmissions(): Promise<Submission[]> {
     if (isIndexedDBAvailable()) {
         const db = await openDB();
         return new Promise<Submission[]>((resolve, reject) => {
-            const tx = db.transaction(STORE_NAME, "readonly");
-            const store = tx.objectStore(STORE_NAME);
+            const tx = db.transaction(STORAGE_CONSTANTS.STORE_NAME, "readonly");
+            const store = tx.objectStore(STORAGE_CONSTANTS.STORE_NAME);
             const index = store.index("status");
             const request = index.getAll("pending");
 
@@ -176,8 +181,11 @@ export async function updateSubmissionStatus(
     if (isIndexedDBAvailable()) {
         const db = await openDB();
         return new Promise<void>((resolve, reject) => {
-            const tx = db.transaction(STORE_NAME, "readwrite");
-            const store = tx.objectStore(STORE_NAME);
+            const tx = db.transaction(
+                STORAGE_CONSTANTS.STORE_NAME,
+                "readwrite",
+            );
+            const store = tx.objectStore(STORAGE_CONSTANTS.STORE_NAME);
             const getReq = store.get(id);
 
             getReq.onsuccess = () => {

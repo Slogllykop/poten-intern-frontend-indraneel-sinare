@@ -6,6 +6,7 @@ import {
     IconShieldCheck,
 } from "@tabler/icons-react";
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useStepNavigation } from "@/hooks/step-context";
 import { useLanguage } from "@/i18n";
@@ -26,6 +27,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     const router = useRouter();
 
     const isTrackerRoute = pathname === "/issues" || currentStep === "tracker";
+
+    // ARIA live region: announce current step to screen readers
+    const stepLabel = useMemo(() => {
+        if (isTrackerRoute) return t("tracker.title");
+        const stepNames: Record<string, string> = {
+            category: t("step.category"),
+            details: t("step.details"),
+            confirmation: t("step.confirmation"),
+        };
+        return stepNames[currentStep] || "";
+    }, [currentStep, isTrackerRoute, t]);
+
+    const liveRef = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        // Delay announcement slightly so it fires after DOM settles
+        const timer = setTimeout(() => {
+            if (liveRef.current) {
+                liveRef.current.textContent = stepLabel;
+            }
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [stepLabel]);
 
     const handleToggle = () => {
         if (isTrackerRoute) {
@@ -70,7 +93,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                                 variant={isTrackerRoute ? "default" : "outline"}
                                 size="sm"
                                 onClick={handleToggle}
-                                className="h-8 gap-1 rounded-lg px-2.5 font-medium text-xs shadow-none active:scale-95"
+                                className="min-h-11 gap-1 rounded-lg px-2.5 font-medium text-xs shadow-none active:scale-95"
                             >
                                 {isTrackerRoute ? (
                                     <>
@@ -102,6 +125,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     )}
                 </div>
             </header>
+
+            {/* Visually-hidden live region for screen reader step announcements */}
+            <div
+                ref={liveRef}
+                aria-live="polite"
+                aria-atomic="true"
+                className="sr-only"
+            />
 
             {/* Scrollable content area */}
             <main className="flex flex-1 flex-col">

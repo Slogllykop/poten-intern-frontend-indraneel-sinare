@@ -7,6 +7,7 @@ import {
     useMemo,
     useState,
 } from "react";
+import { FLOW_STEPS, INITIAL_DRAFT } from "@/lib/constants";
 import type {
     CategoryId,
     Direction,
@@ -14,18 +15,6 @@ import type {
     Submission,
     SubmissionDraft,
 } from "@/types";
-
-// ---------------------------------------------------------------------------
-// Step flow constants
-// ---------------------------------------------------------------------------
-
-const STEPS: Step[] = ["category", "details", "confirmation"];
-
-const INITIAL_DRAFT: SubmissionDraft = {
-    category: null,
-    description: "",
-    photo: null,
-};
 
 // ---------------------------------------------------------------------------
 // Context shape
@@ -71,13 +60,13 @@ export function StepProvider({ children }: { children: React.ReactNode }) {
         null,
     );
 
-    const stepIndex = STEPS.indexOf(currentStep);
+    const stepIndex = FLOW_STEPS.indexOf(currentStep);
 
     const goNext = useCallback(() => {
-        const idx = STEPS.indexOf(currentStep);
-        if (idx === -1 || idx >= STEPS.length - 1) return;
+        const idx = FLOW_STEPS.indexOf(currentStep);
+        if (idx === -1 || idx >= FLOW_STEPS.length - 1) return;
         setDirection("forward");
-        setCurrentStep(STEPS[idx + 1]);
+        setCurrentStep(FLOW_STEPS[idx + 1]);
     }, [currentStep]);
 
     const goBack = useCallback(() => {
@@ -86,10 +75,10 @@ export function StepProvider({ children }: { children: React.ReactNode }) {
             setCurrentStep("category");
             return;
         }
-        const idx = STEPS.indexOf(currentStep);
+        const idx = FLOW_STEPS.indexOf(currentStep);
         if (idx <= 0) return;
         setDirection("backward");
-        setCurrentStep(STEPS[idx - 1]);
+        setCurrentStep(FLOW_STEPS[idx - 1]);
     }, [currentStep]);
 
     const goToStep = useCallback(
@@ -100,8 +89,8 @@ export function StepProvider({ children }: { children: React.ReactNode }) {
                 setCurrentStep("tracker");
                 return;
             }
-            const target = STEPS.indexOf(step);
-            const current = STEPS.indexOf(currentStep);
+            const target = FLOW_STEPS.indexOf(step);
+            const current = FLOW_STEPS.indexOf(currentStep);
             setDirection(target >= current ? "forward" : "backward");
             setCurrentStep(step);
         },

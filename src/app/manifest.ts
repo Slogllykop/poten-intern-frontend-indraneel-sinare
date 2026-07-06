@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: "Civic Issue Reporter",
-        short_name: "CivicReport",
+        name: "Novus",
+        short_name: "Novus",
         description:
             "Report civic issues like potholes, water leaks, and electricity hazards. Available in English and Hindi.",
         start_url: "/",

@@ -1,4 +1,4 @@
-# Milestones - Civic Issue Reporter PWA
+# Milestones - Novus PWA
 
 > A multilingual (EN/HI), mobile-first, offline-capable PWA for reporting civic issues.
 > Three screens: Category > Details > Confirmation. Installable. Slow-3G tolerant. Taste-driven.
@@ -25,7 +25,7 @@
 - [ ] Configure Geist Sans + Geist Mono via `next/font` in `layout.tsx`
 - [ ] Remove Inter font import (not needed)
 - [ ] Add viewport export with `width: device-width`, `initialScale: 1`, `themeColor`
-- [ ] Update root metadata: title, description for Civic Reporter
+- [ ] Update root metadata: title, description for Novus
 - [ ] Set `<html lang="en">` (dynamic based on locale later)
 - [ ] Body: `min-h-[100dvh]` (never `h-screen`), flex column layout
 
@@ -91,7 +91,7 @@
 - [ ] Create `src/layers/storage.ts`:
   - Pure TypeScript module, no React dependencies
   - IndexedDB wrapper using raw `indexedDB` API (no library dependencies)
-  - Database name: `civic-reporter-db`, version 1
+  - Database name: `novus-db`, version 1
   - Object store: `submissions` with auto-increment key
   - Indexes: `status`, `createdAt`
   - Functions:
@@ -391,7 +391,7 @@
 - [ ] Create `src/app/manifest.ts`:
   - Uses `MetadataRoute.Manifest` return type (Next.js convention)
   - Properties:
-    - `name`: "Civic Issue Reporter" 
+    - `name`: "Novus" 
     - `short_name`: "CivicReport"
     - `description`: Bilingual description
     - `start_url`: "/"
@@ -417,7 +417,7 @@
 ### 6.3 Service Worker
 
 - [ ] Create `public/sw.js`:
-  - Cache name versioned: `civic-reporter-v1`
+  - Cache name versioned: `novus-v1`
   - Install event: precache app shell (HTML, CSS, JS bundles)
   - Fetch event strategy:
     - Static assets (fonts, icons, CSS): Cache-first

@@ -1,7 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { UI_CONSTANTS } from "@/lib/constants";
 import type { Direction, Step } from "@/types";
 
 /**
@@ -12,9 +13,10 @@ import type { Direction, Step } from "@/types";
  * so the user always knows "where" they are in the flow.
  *
  * Respects prefers-reduced-motion: degrades to a simple fade.
+ *
+ * Focus management: after the enter animation completes, focus is moved
+ * to the new screen's heading (h2) so screen readers announce the change.
  */
-
-const SLIDE_DISTANCE = 40; // in logical pixels (rem-equivalent via transform)
 
 interface ScreenTransitionProps {
     /** Current step key for AnimatePresence */
@@ -31,6 +33,7 @@ export function ScreenTransition({
 }: ScreenTransitionProps) {
     const prefersReducedMotion = useReducedMotion();
     const [isMounted, setIsMounted] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setIsMounted(true);
@@ -38,12 +41,29 @@ export function ScreenTransition({
 
     const shouldReduce = isMounted ? prefersReducedMotion : false;
 
-    const xOffset = direction === "forward" ? SLIDE_DISTANCE : -SLIDE_DISTANCE;
+    const xOffset =
+        direction === "forward"
+            ? UI_CONSTANTS.SLIDE_DISTANCE
+            : -UI_CONSTANTS.SLIDE_DISTANCE;
+
+    /** Move focus to the new screen's heading after enter animation */
+    const handleAnimationComplete = useCallback(() => {
+        if (!containerRef.current) return;
+        const heading = containerRef.current.querySelector("h2");
+        if (heading) {
+            // Make heading focusable without adding it to tab order
+            if (!heading.hasAttribute("tabindex")) {
+                heading.setAttribute("tabindex", "-1");
+            }
+            heading.focus({ preventScroll: true });
+        }
+    }, []);
 
     return (
         <AnimatePresence mode="wait" initial={false}>
             <motion.div
                 key={stepKey}
+                ref={containerRef}
                 initial={
                     shouldReduce ? { opacity: 0 } : { opacity: 0, x: xOffset }
                 }
@@ -55,6 +75,7 @@ export function ScreenTransition({
                     duration: 0.25,
                     ease: [0.23, 1, 0.32, 1], // strong ease-out
                 }}
+                onAnimationComplete={handleAnimationComplete}
                 className="flex flex-1 flex-col"
             >
                 {children}

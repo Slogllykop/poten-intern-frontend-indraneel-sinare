@@ -2,7 +2,7 @@
 
 import { IconCheck, IconWifiOff } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useOfflineSync } from "@/hooks/use-offline-sync";
 import { useLanguage } from "@/i18n";
 
@@ -13,12 +13,23 @@ import { useLanguage } from "@/i18n";
 export function OfflineBanner() {
     const { t } = useLanguage();
     const { isOnline, pendingCount, lastSyncedCount } = useOfflineSync();
-    const [showSyncedToast, setShowSyncedToast] = useState(false);
+    const [showToast, setShowToast] = useState(false);
+    const [toastType, setToastType] = useState<"synced" | "backOnline">(
+        "backOnline",
+    );
+    const wasOfflineRef = useRef(!isOnline);
 
     useEffect(() => {
-        if (isOnline && lastSyncedCount > 0) {
-            setShowSyncedToast(true);
-            const timer = setTimeout(() => setShowSyncedToast(false), 3500);
+        if (!isOnline) {
+            wasOfflineRef.current = true;
+        } else if (isOnline && wasOfflineRef.current) {
+            // Just came back online
+            wasOfflineRef.current = false;
+
+            setToastType(lastSyncedCount > 0 ? "synced" : "backOnline");
+            setShowToast(true);
+
+            const timer = setTimeout(() => setShowToast(false), 3500);
             return () => clearTimeout(timer);
         }
     }, [isOnline, lastSyncedCount]);
@@ -54,9 +65,9 @@ export function OfflineBanner() {
                     </div>
                 </motion.div>
             )}
-            {showSyncedToast && !isOffline && (
+            {showToast && !isOffline && (
                 <motion.div
-                    key="synced"
+                    key="toast"
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
@@ -72,7 +83,11 @@ export function OfflineBanner() {
                             className="shrink-0"
                             strokeWidth={2.5}
                         />
-                        <span>{t("offline.synced")}</span>
+                        <span>
+                            {toastType === "synced"
+                                ? t("offline.synced")
+                                : t("offline.backOnline")}
+                        </span>
                     </div>
                 </motion.div>
             )}

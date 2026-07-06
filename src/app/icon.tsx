@@ -37,7 +37,7 @@ export default async function Icon({ id }: { id: Promise<string> }) {
         >
             <svg
                 role="img"
-                aria-label="Civic Reporter Icon"
+                aria-label="Novus Icon"
                 width={iconSize}
                 height={iconSize}
                 viewBox="0 0 24 24"

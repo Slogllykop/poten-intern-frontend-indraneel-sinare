@@ -20,44 +20,15 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { useStepNavigation } from "@/hooks/step-context";
-import { CATEGORIES } from "@/hooks/use-categories";
 import { type TimelineStep, useTracker } from "@/hooks/use-tracker";
 import { useLanguage } from "@/i18n";
+import {
+    CATEGORIES,
+    COLOR_MAP,
+    MONTH_NAMES_EN,
+    MONTH_NAMES_HI,
+} from "@/lib/constants";
 import { cn } from "@/lib/utils";
-
-const COLOR_MAP: Record<string, { bg: string; text: string; border: string }> =
-    {
-        amber: {
-            bg: "bg-amber-500/20",
-            text: "text-amber-800 dark:text-amber-300",
-            border: "border-amber-500/40",
-        },
-        sky: {
-            bg: "bg-sky-500/20",
-            text: "text-sky-800 dark:text-sky-300",
-            border: "border-sky-500/40",
-        },
-        yellow: {
-            bg: "bg-yellow-500/20",
-            text: "text-yellow-800 dark:text-yellow-300",
-            border: "border-yellow-500/40",
-        },
-        lime: {
-            bg: "bg-lime-500/20",
-            text: "text-lime-800 dark:text-lime-300",
-            border: "border-lime-500/40",
-        },
-        rose: {
-            bg: "bg-rose-500/20",
-            text: "text-rose-800 dark:text-rose-300",
-            border: "border-rose-500/40",
-        },
-        violet: {
-            bg: "bg-violet-500/20",
-            text: "text-violet-800 dark:text-violet-300",
-            border: "border-violet-500/40",
-        },
-    };
 
 function getOrdinal(n: number): string {
     const s = ["th", "st", "nd", "rd"];
@@ -76,40 +47,12 @@ function formatTimestamp(timestamp: number, locale: "en" | "hi"): string {
     hours = hours % 12 || 12;
 
     if (locale === "hi") {
-        const hindiMonths = [
-            "जनवरी",
-            "फरवरी",
-            "मार्च",
-            "अप्रैल",
-            "मई",
-            "जून",
-            "जुलाई",
-            "अगस्त",
-            "सितंबर",
-            "अक्टूबर",
-            "नवंबर",
-            "दिसंबर",
-        ];
-        const month = hindiMonths[d.getMonth()];
+        const month = MONTH_NAMES_HI[d.getMonth()];
         const amPm = isPm ? "दोपहर/शाम" : "सुबह";
         return `${day} ${month} ${year}, ${amPm} ${hours}:${mins} बजे`;
     }
 
-    const monthNames = [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-    ];
-    const month = monthNames[d.getMonth()];
+    const month = MONTH_NAMES_EN[d.getMonth()];
     const amPm = isPm ? "pm" : "am";
     return `${getOrdinal(day)} ${month} ${year}, ${hours}:${mins} ${amPm}`;
 }
@@ -169,7 +112,7 @@ function TimelineView({ steps }: { steps: TimelineStep[] }) {
                                 {idx < steps.length - 1 && (
                                     <div
                                         className={cn(
-                                            "my-1.5 h-9 w-[2px] flex-1 transition-colors duration-300",
+                                            "my-1.5 h-9 w-0.5 flex-1 transition-colors duration-300",
                                             isCompleted
                                                 ? "bg-emerald-600/60 dark:bg-emerald-500/60"
                                                 : "bg-border/60",
@@ -181,14 +124,14 @@ function TimelineView({ steps }: { steps: TimelineStep[] }) {
                             {/* Right column: Screenshot style - smaller font sizes */}
                             <div className="flex flex-1 flex-col pt-0.5 pb-7 text-left">
                                 {step.timestamp ? (
-                                    <span className="mb-0.5 block font-normal text-[11px] text-muted-foreground">
+                                    <span className="mb-0.5 block font-normal text-[0.6875rem] text-muted-foreground">
                                         {formatTimestamp(
                                             step.timestamp,
                                             locale,
                                         )}
                                     </span>
                                 ) : (
-                                    <span className="mb-0.5 block font-normal text-[11px] text-muted-foreground/50">
+                                    <span className="mb-0.5 block font-normal text-[0.6875rem] text-muted-foreground/50">
                                         {locale === "hi"
                                             ? "प्रतीक्षारत"
                                             : "Pending"}
@@ -211,7 +154,7 @@ function TimelineView({ steps }: { steps: TimelineStep[] }) {
                                 {isCurrent && (
                                     <div className="mt-1 flex items-center gap-1.5">
                                         <span className="size-1.5 animate-pulse rounded-full bg-primary" />
-                                        <span className="font-medium text-[11px] text-primary sm:text-xs">
+                                        <span className="font-medium text-[0.6875rem] text-primary sm:text-xs">
                                             {locale === "hi"
                                                 ? "वर्तमान सक्रिय चरण • स्थिति अपडेट की जा रही है"
                                                 : "Current active stage • Status processing"}
@@ -436,7 +379,7 @@ export function TrackerScreen() {
                                                     {t(currentStepObj.labelKey)}
                                                 </span>
                                             </div>
-                                            <span className="font-mono text-[11px]">
+                                            <span className="font-mono text-[0.6875rem]">
                                                 {formatTimestamp(
                                                     sub.createdAt,
                                                     locale,
@@ -460,7 +403,7 @@ export function TrackerScreen() {
                                                 e.stopPropagation();
                                                 advanceStatus(sub.id);
                                             }}
-                                            className="h-7 touch-manipulation gap-1.5 rounded-xl px-3 font-semibold text-[11px] shadow-none transition-all hover:bg-secondary/80 active:scale-95"
+                                            className="h-7 touch-manipulation gap-1.5 rounded-xl px-3 font-semibold text-[0.6875rem] shadow-none transition-all hover:bg-secondary/80 active:scale-95"
                                         >
                                             <span>
                                                 {locale === "hi"

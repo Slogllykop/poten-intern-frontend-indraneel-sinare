@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { VOICE_CONFIG } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 interface WaveformProps {
@@ -10,10 +11,6 @@ interface WaveformProps {
     isActive: boolean;
     className?: string;
 }
-
-const BAR_COUNT = 32;
-const BAR_GAP = 2;
-const MIN_BAR_HEIGHT = 2;
 
 /**
  * Real-time audio waveform visualization using canvas.
@@ -42,7 +39,7 @@ export function Waveform({ analyserNode, isActive, className }: WaveformProps) {
 
         const bufferLength = analyserNode.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
-        const step = Math.floor(bufferLength / BAR_COUNT);
+        const step = Math.floor(bufferLength / VOICE_CONFIG.BAR_COUNT);
 
         // Set canvas resolution to match display size
         const dpr = window.devicePixelRatio || 1;
@@ -53,7 +50,9 @@ export function Waveform({ analyserNode, isActive, className }: WaveformProps) {
 
         const drawWidth = rect.width;
         const drawHeight = rect.height;
-        const barWidth = (drawWidth - BAR_GAP * (BAR_COUNT - 1)) / BAR_COUNT;
+        const barWidth =
+            (drawWidth - VOICE_CONFIG.BAR_GAP * (VOICE_CONFIG.BAR_COUNT - 1)) /
+            VOICE_CONFIG.BAR_COUNT;
         const centerY = drawHeight / 2;
 
         const draw = () => {
@@ -62,13 +61,13 @@ export function Waveform({ analyserNode, isActive, className }: WaveformProps) {
 
             ctx.clearRect(0, 0, drawWidth, drawHeight);
 
-            for (let i = 0; i < BAR_COUNT; i++) {
+            for (let i = 0; i < VOICE_CONFIG.BAR_COUNT; i++) {
                 const value = dataArray[i * step] / 255;
                 const barHeight = Math.max(
-                    MIN_BAR_HEIGHT,
+                    VOICE_CONFIG.MIN_BAR_HEIGHT,
                     value * (drawHeight * 0.8),
                 );
-                const x = i * (barWidth + BAR_GAP);
+                const x = i * (barWidth + VOICE_CONFIG.BAR_GAP);
                 const y = centerY - barHeight / 2;
 
                 // Gradient from rose-400 to rose-500

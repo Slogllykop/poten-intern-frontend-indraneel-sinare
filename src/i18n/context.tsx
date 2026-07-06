@@ -8,13 +8,12 @@ import {
     useMemo,
     useState,
 } from "react";
+import { I18N_STORAGE_KEY } from "@/lib/constants";
 import type { TranslationKeys, Translations } from "./translations/en";
 import en from "./translations/en";
 import hi from "./translations/hi";
 
 export type Locale = "en" | "hi";
-
-const STORAGE_KEY = "civic-reporter-locale";
 
 const translationMap: Record<Locale, Translations> = { en, hi };
 
@@ -36,7 +35,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     // Load stored locale after initial hydration to prevent SSR mismatch
     useLayoutEffect(() => {
         try {
-            const stored = localStorage.getItem(STORAGE_KEY);
+            const stored = localStorage.getItem(I18N_STORAGE_KEY) as Locale;
             if (stored === "en" || stored === "hi") {
                 setLocaleState(stored);
             }
@@ -48,7 +47,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     const setLocale = useCallback((next: Locale) => {
         setLocaleState(next);
         try {
-            localStorage.setItem(STORAGE_KEY, next);
+            localStorage.setItem(I18N_STORAGE_KEY, next);
         } catch {
             // silent fail
         }

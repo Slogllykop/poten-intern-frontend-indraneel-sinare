@@ -1,9 +1,10 @@
 "use client";
 
-import { motion, type Variants } from "motion/react";
+import { motion, useReducedMotion, type Variants } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { useCategories } from "@/hooks/use-categories";
 import { useLanguage } from "@/i18n";
+import { COLOR_MAP } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 // Animation variants for staggering children
@@ -24,56 +25,11 @@ const itemVariants: Variants = {
     },
 };
 
-/**
- * Per-category color map for selected state backgrounds and icon containers.
- * Kept as a lookup to stay Tailwind-safe (no dynamic class construction).
- */
-const COLOR_MAP: Record<
-    string,
-    { bg: string; text: string; border: string; iconBg: string }
-> = {
-    amber: {
-        bg: "bg-amber-500/10",
-        text: "text-amber-600",
-        border: "border-amber-500/50",
-        iconBg: "bg-amber-500",
-    },
-    sky: {
-        bg: "bg-sky-500/10",
-        text: "text-sky-600",
-        border: "border-sky-500/50",
-        iconBg: "bg-sky-500",
-    },
-    yellow: {
-        bg: "bg-yellow-500/10",
-        text: "text-yellow-600",
-        border: "border-yellow-500/50",
-        iconBg: "bg-yellow-500",
-    },
-    lime: {
-        bg: "bg-lime-500/10",
-        text: "text-lime-600",
-        border: "border-lime-500/50",
-        iconBg: "bg-lime-500",
-    },
-    rose: {
-        bg: "bg-rose-500/10",
-        text: "text-rose-600",
-        border: "border-rose-500/50",
-        iconBg: "bg-rose-500",
-    },
-    violet: {
-        bg: "bg-violet-500/10",
-        text: "text-violet-600",
-        border: "border-violet-500/50",
-        iconBg: "bg-violet-500",
-    },
-};
-
 export function CategoryScreen() {
     const { t } = useLanguage();
     const { categories, selectedCategory, selectCategory, goNext } =
         useCategories();
+    const prefersReducedMotion = useReducedMotion();
 
     return (
         <div className="flex flex-1 flex-col gap-6">
@@ -90,6 +46,9 @@ export function CategoryScreen() {
                 variants={containerVariants}
                 initial="hidden"
                 animate="show"
+                transition={
+                    prefersReducedMotion ? { staggerChildren: 0 } : undefined
+                }
                 className="grid grid-cols-2 gap-3 sm:grid-cols-3"
             >
                 {categories.map((cat) => {
@@ -104,7 +63,6 @@ export function CategoryScreen() {
                             variants={itemVariants}
                             whileTap={{ scale: 0.97 }}
                             onClick={() => selectCategory(cat.id)}
-                            onTap={() => selectCategory(cat.id)}
                             className={cn(
                                 "flex touch-manipulation flex-col items-center justify-center gap-3 p-4",
                                 "rounded-xl border transition-all duration-200",

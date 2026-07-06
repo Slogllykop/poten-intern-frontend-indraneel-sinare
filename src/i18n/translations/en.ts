@@ -1,6 +1,6 @@
 const translations = {
     // App
-    "app.title": "Civic Reporter",
+    "app.title": "Novus",
     "app.description": "Report civic issues in your neighbourhood",
 
     // Navigation
@@ -83,6 +83,7 @@ const translations = {
     "offline.banner":
         "You are offline. Reports will be saved locally and synced when you reconnect.",
     "offline.synced": "All reports synced",
+    "offline.backOnline": "Back online",
 
     // Errors
     "error.submissionFailed": "Failed to save report. Please try again.",

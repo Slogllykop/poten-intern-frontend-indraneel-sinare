@@ -17,12 +17,8 @@ import { useSubmission } from "@/hooks/use-submission";
 import { useVoiceInput } from "@/hooks/use-voice-input";
 import { useLanguage } from "@/i18n";
 import type { TranslationKeys } from "@/i18n/translations/en";
+import { VOICE_CONFIG } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-
-const MIN_DESCRIPTION_LENGTH = 10;
-
-/** Feature flag: set to false while voice recognition is being debugged/tested */
-const ENABLE_VOICE_RECOGNITION = false;
 
 /** Category badge at the top showing what was selected in Screen 1 */
 function SelectedCategoryBadge() {
@@ -183,7 +179,7 @@ function PhotoCapture() {
                     <button
                         type="button"
                         onClick={handleRemove}
-                        className="-right-2 -top-2 absolute flex size-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-sm transition-transform hover:scale-110"
+                        className="-right-2 -top-2 before:-inset-3 absolute flex size-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-sm transition-transform before:absolute before:content-[''] hover:scale-110"
                         aria-label={t("details.removePhoto")}
                     >
                         <IconX size="0.875rem" strokeWidth={2} />
@@ -224,7 +220,7 @@ export function DetailsScreen() {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     const charCount = draft.description.length;
-    const isValid = charCount >= MIN_DESCRIPTION_LENGTH;
+    const isValid = charCount >= VOICE_CONFIG.MIN_DESCRIPTION_LENGTH;
 
     const handleTextChange = useCallback(
         (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -261,6 +257,7 @@ export function DetailsScreen() {
                     onChange={handleTextChange}
                     placeholder={t("details.descriptionPlaceholder")}
                     rows={4}
+                    maxLength={2000}
                     className={cn(
                         "w-full resize-none rounded-lg border bg-card px-3 py-2.5",
                         "text-foreground text-sm placeholder:text-muted-foreground/60",
@@ -291,7 +288,7 @@ export function DetailsScreen() {
             </div>
 
             {/* Voice input - controlled via feature flag */}
-            {ENABLE_VOICE_RECOGNITION && <VoiceInputButton />}
+            {VOICE_CONFIG.ENABLE_VOICE_RECOGNITION && <VoiceInputButton />}
 
             {/* Photo capture */}
             <PhotoCapture />

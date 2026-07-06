@@ -1,5 +1,5 @@
 /**
- * Submission types for the Civic Reporter app.
+ * Submission types for the Novus app.
  * Used across storage layer, hooks, and components.
  */
 

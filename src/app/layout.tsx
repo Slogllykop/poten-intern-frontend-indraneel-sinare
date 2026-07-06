@@ -17,14 +17,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-    title: "Civic Reporter",
+    title: "Novus",
     description:
         "Report civic issues in your neighbourhood. Multilingual, offline-capable, and installable.",
-    applicationName: "Civic Reporter",
+    applicationName: "Novus",
     appleWebApp: {
         capable: true,
         statusBarStyle: "default",
-        title: "Civic Reporter",
+        title: "Novus",
     },
     formatDetection: {
         telephone: false,
@@ -34,7 +34,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
     width: "device-width",
     initialScale: 1,
-    maximumScale: 1,
     themeColor: [
         { media: "(prefers-color-scheme: light)", color: "#059669" },
         { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },

@@ -11,9 +11,13 @@ import { motion, type Variants } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { CATEGORIES } from "@/hooks/use-categories";
 import { useSubmission } from "@/hooks/use-submission";
 import { useLanguage } from "@/i18n";
+import {
+    CATEGORIES,
+    MONTH_NAMES_HI,
+    MONTH_NAMES_SHORT_EN,
+} from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 /**
@@ -35,41 +39,13 @@ function formatSubmissionTimestamp(
     hours = hours % 12 || 12;
 
     if (locale === "hi") {
-        const hindiMonths = [
-            "जनवरी",
-            "फरवरी",
-            "मार्च",
-            "अप्रैल",
-            "मई",
-            "जून",
-            "जुलाई",
-            "अगस्त",
-            "सितंबर",
-            "अक्टूबर",
-            "नवंबर",
-            "दिसंबर",
-        ];
-        const month = hindiMonths[d.getMonth()];
-        const amPm = isPm ? "दोपहर/शाम" : "सुबह";
-        return `${day} ${month} ${year}, ${amPm} ${hours}:${mins} बजे`;
+        const month = MONTH_NAMES_HI[d.getMonth()];
+        const amPm = isPm ? "दोपहर" : "सुबह";
+        return `${day} ${month} ${year}, ${amPm} ${hours}:${mins}`;
     }
 
-    const monthNames = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-    ];
-    const month = monthNames[d.getMonth()];
-    const amPm = isPm ? "pm" : "am";
+    const month = MONTH_NAMES_SHORT_EN[d.getMonth()];
+    const amPm = isPm ? "PM" : "AM";
     return `${day} ${month} ${year}, ${hours}:${mins} ${amPm}`;
 }
 
@@ -238,7 +214,7 @@ export function ConfirmationScreen() {
                     </span>
                     <span
                         className={cn(
-                            "col-span-2 inline-flex w-fit items-center rounded-full px-2 py-0.5 font-medium text-[11px]",
+                            "col-span-2 inline-flex w-fit items-center rounded-full px-2 py-0.5 font-medium text-[0.6875rem]",
                             lastSubmission.status === "pending"
                                 ? "bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400"
                                 : "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400",

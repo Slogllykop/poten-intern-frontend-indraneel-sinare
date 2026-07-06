@@ -5,7 +5,6 @@ import {
     useEffect,
     useRef,
     useState,
-    useSyncExternalStore,
 } from "react";
 import {
     isOnline as getIsOnline,
@@ -36,11 +35,18 @@ function subscribe(callback: () => void) {
  * sync stored offline submissions when connectivity is restored.
  */
 export function useOfflineSync(): UseOfflineSyncReturn {
-    const isOnline = useSyncExternalStore(subscribe, getIsOnline, () => true);
+    const [isOnline, setIsOnline] = useState<boolean>(true);
     const [pendingCount, setPendingCount] = useState<number>(0);
     const [isSyncing, setIsSyncing] = useState<boolean>(false);
-
     const [lastSyncedCount, setLastSyncedCount] = useState<number>(0);
+
+    useEffect(() => {
+        setIsOnline(getIsOnline());
+        const unsubscribe = subscribe(() => {
+            setIsOnline(getIsOnline());
+        });
+        return unsubscribe;
+    }, []);
 
     const checkPending = useCallback(async () => {
         try {

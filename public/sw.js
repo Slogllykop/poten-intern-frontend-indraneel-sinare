@@ -1,4 +1,4 @@
-const CACHE_NAME = "civic-reporter-v2";
+const CACHE_NAME = "novus-v2";
 const STATIC_ASSETS = ["/", "/manifest.webmanifest", "/favicon.ico"];
 
 // Install event: precache app shell
