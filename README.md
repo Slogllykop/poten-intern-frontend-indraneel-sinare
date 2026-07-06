@@ -79,7 +79,7 @@ flowchart LR
 
 ## What is Broken or Unfinished
 
-- **Voice Input Temporarily Disabled:** The voice input feature (using the Web Speech API) is currently disabled behind a feature flag (`ENABLE_VOICE_RECOGNITION: false`) as it is considered broken and being reworked. When active, it relies on the browser's native `SpeechRecognition` API which is heavily fragmented across browsers.
+- **Voice Input Browser Fragmentation:** The voice input feature (using the Web Speech API) is enabled by default (`ENABLE_VOICE_RECOGNITION: true`). However, since the Web Speech API is heavily fragmented and relies on vendor-specific servers (like Google's speech recognition servers in Chrome) or on-device language packages, it does not work on all browsers (such as Firefox, Vivaldi, Brave, or embedded WebViews). Please use the latest standalone Google Chrome browser version to test and use this feature, as it has been tested and verified to work correctly there.
 - **Simulated Backend Sync:** The app fully queues and "syncs" offline submissions when coming back online, but this is a simulated local-only process. No actual remote server or database is hooked up yet.
 - **Lighthouse Screenshots:** Lighthouse passes with high scores (90+ Accessibility, PWA compliant), but the actual screenshots are not physically committed to the repository yet.
 

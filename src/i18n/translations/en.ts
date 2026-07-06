@@ -38,6 +38,7 @@ const translations = {
     "details.photoLabel": "Add a Photo",
     "details.photoHint": "Optional. Helps responders understand the issue.",
     "details.removePhoto": "Remove photo",
+    "details.reuploadPhoto": "Reupload Photo",
     "details.voiceLabel": "Voice Input",
     "details.voiceStart": "Tap to speak",
     "details.voiceStop": "Tap to stop",

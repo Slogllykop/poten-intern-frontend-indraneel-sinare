@@ -7,12 +7,11 @@ import {
     IconMicrophoneOff,
     IconX,
 } from "@tabler/icons-react";
-import { motion } from "motion/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Waveform } from "@/components/shared/waveform";
+import { useCallback, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useStepNavigation } from "@/hooks/step-context";
 import { useCamera } from "@/hooks/use-camera";
+import { useOfflineSync } from "@/hooks/use-offline-sync";
 import { useSubmission } from "@/hooks/use-submission";
 import { useVoiceInput } from "@/hooks/use-voice-input";
 import { useLanguage } from "@/i18n";
@@ -30,7 +29,7 @@ function SelectedCategoryBadge() {
     const labelKey = `category.${draft.category}` as TranslationKeys;
 
     return (
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 font-medium text-primary text-xs">
+        <div className="inline-flex w-fit items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1 font-medium text-primary text-xs shadow-2xs">
             <span className="text-muted-foreground">
                 {t("details.selectedCategory")}:
             </span>
@@ -39,171 +38,179 @@ function SelectedCategoryBadge() {
     );
 }
 
-/** Pulsing microphone button with listening state and live waveform */
-function VoiceInputButton() {
-    const { t } = useLanguage();
-    const {
-        voiceState,
-        voiceErrorKey,
-        interimText,
-        analyserNode,
-        toggleListening,
-        isSupported,
-        isListening,
-    } = useVoiceInput();
-
-    const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+/** Mini 5-bar reactive audio waveform */
+function MiniWaveform({
+    analyserNode,
+    isActive,
+}: {
+    analyserNode: AnalyserNode | null;
+    isActive: boolean;
+}) {
+    const barRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const idleHeights = ["0.35rem", "0.5rem", "0.75rem", "0.5rem", "0.35rem"];
 
     useEffect(() => {
-        const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
-        setPrefersReducedMotion(mql.matches);
-        const handler = (e: MediaQueryListEvent) =>
-            setPrefersReducedMotion(e.matches);
-        mql.addEventListener("change", handler);
-        return () => mql.removeEventListener("change", handler);
-    }, []);
-
-    const label = useMemo(() => {
-        if (!isSupported) return t("details.voiceUnsupported");
-        if (isListening) return t("details.voiceListening");
-        if (voiceState === "error") {
-            return t(
-                (voiceErrorKey as TranslationKeys) || "details.voiceError",
-            );
+        if (!analyserNode || !isActive) {
+            for (let i = 0; i < 5; i++) {
+                const bar = barRefs.current[i];
+                if (bar) bar.style.height = idleHeights[i];
+            }
+            return;
         }
-        return t("details.voiceStart");
-    }, [isSupported, isListening, voiceState, voiceErrorKey, t]);
+
+        const bufferLength = analyserNode.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+
+        // Sensitivity multipliers: middle bar is highly sensitive, outer bars are capped
+        const multipliers = [0.2, 0.65, 1.25, 0.65, 0.2];
+
+        let animationFrameId: number;
+
+        const updateBars = () => {
+            analyserNode.getByteFrequencyData(dataArray);
+
+            for (let i = 0; i < 5; i++) {
+                const bar = barRefs.current[i];
+                if (bar) {
+                    // Read the lowest 5 frequency bins directly (main voice spectrum)
+                    const rawValue = dataArray[i] / 255;
+                    const scaledValue = rawValue * multipliers[i];
+
+                    // Set height in rem: min 0.25rem (4px).
+                    // Dynamic range caps: middle bar can reach 1.5rem (24px), outer ones are restricted to 0.75rem and 0.4rem.
+                    const cap =
+                        i === 2 ? 1.25 : i === 1 || i === 3 ? 0.5 : 0.15;
+                    const height = 0.25 + Math.min(scaledValue, 1.0) * cap;
+
+                    bar.style.height = `${height}rem`;
+                }
+            }
+
+            animationFrameId = requestAnimationFrame(updateBars);
+        };
+
+        updateBars();
+
+        return () => {
+            cancelAnimationFrame(animationFrameId);
+        };
+    }, [analyserNode, isActive]);
 
     return (
-        <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-card/50 p-4">
-            <div className="flex items-center gap-3">
-                <motion.button
-                    type="button"
-                    onClick={toggleListening}
-                    disabled={!isSupported}
-                    animate={
-                        isListening && !prefersReducedMotion
-                            ? { scale: [1, 1.15, 1] }
-                            : { scale: 1 }
-                    }
-                    transition={
-                        isListening
-                            ? {
-                                  duration: 1.5,
-                                  repeat: Number.POSITIVE_INFINITY,
-                                  ease: "easeInOut",
-                              }
-                            : undefined
-                    }
-                    className={cn(
-                        "flex size-12 items-center justify-center rounded-full transition-colors duration-200",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                        isListening
-                            ? "bg-rose-500 text-white shadow-lg shadow-rose-500/25"
-                            : isSupported
-                              ? "bg-muted text-muted-foreground hover:bg-accent"
-                              : "cursor-not-allowed bg-muted/50 text-muted-foreground/50",
-                    )}
-                    aria-label={
-                        isListening
-                            ? t("a11y.voiceInputActive")
-                            : t("details.voiceLabel")
-                    }
-                >
-                    {isListening ? (
-                        <IconMicrophoneOff size="1.25rem" strokeWidth={1.75} />
-                    ) : (
-                        <IconMicrophone size="1.25rem" strokeWidth={1.75} />
-                    )}
-                </motion.button>
-                <div className="flex flex-1 flex-col">
-                    <span
-                        className={cn(
-                            "font-medium text-sm",
-                            isListening
-                                ? "text-rose-500"
-                                : voiceState === "error"
-                                  ? "text-destructive"
-                                  : "text-foreground",
-                        )}
-                    >
-                        {label}
-                    </span>
-                    {interimText && isListening && (
-                        <span className="line-clamp-1 text-muted-foreground text-xs italic">
-                            {interimText}...
-                        </span>
-                    )}
-                </div>
-                {/* Static recording dot for reduced-motion users */}
-                {isListening && prefersReducedMotion && (
-                    <span className="inline-block size-2 animate-pulse rounded-full bg-rose-500" />
-                )}
-            </div>
-
-            {/* Live waveform visualization when actively recording */}
-            {isListening && (
-                <div className="mt-1 border-border/40 border-t pt-2">
-                    <Waveform
-                        analyserNode={analyserNode}
-                        isActive={isListening}
-                        className="h-12"
-                    />
-                </div>
+        <div
+            className={cn(
+                "flex h-6 items-center gap-1 rounded-md border px-1.5 py-1 transition-all duration-200",
+                isActive
+                    ? "border-rose-500/30 bg-rose-500/10"
+                    : "border-border/40 bg-muted/30 opacity-75",
             )}
+        >
+            {[...Array(5)].map((_, i) => (
+                <div
+                    // biome-ignore lint/suspicious/noArrayIndexKey: children dont change
+                    key={i}
+                    ref={(el) => {
+                        barRefs.current[i] = el;
+                    }}
+                    className={cn(
+                        "w-0.5 rounded-full transition-all duration-75",
+                        isActive ? "bg-rose-500" : "bg-primary/70",
+                    )}
+                    style={{ height: idleHeights[i] }}
+                />
+            ))}
         </div>
     );
 }
 
-/** Photo capture area with thumbnail preview */
+/** Photo capture area with thumbnail preview or massive dropper card */
 function PhotoCapture() {
     const { t } = useLanguage();
     const { photo, isProcessing, error, handleCapture, handleRemove } =
         useCamera();
 
     return (
-        <div className="space-y-2">
-            <p className="font-medium text-sm">{t("details.photoLabel")}</p>
-            <p className="text-muted-foreground text-xs">
-                {t("details.photoHint")}
-            </p>
-
+        <div className="space-y-2.5">
             {photo ? (
-                <div className="relative w-fit">
-                    {/* biome-ignore lint/performance/noImgElement: base64 data URL preview, next/image is not suitable */}
-                    <img
-                        src={photo}
-                        alt={t("a11y.photoPreview")}
-                        className="h-32 w-auto rounded-lg border border-border object-cover"
-                    />
-                    <button
-                        type="button"
-                        onClick={handleRemove}
-                        className="-right-2 -top-2 before:-inset-3 absolute flex size-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-sm transition-transform before:absolute before:content-[''] hover:scale-110"
-                        aria-label={t("details.removePhoto")}
-                    >
-                        <IconX size="0.875rem" strokeWidth={2} />
-                    </button>
+                <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-card p-3 shadow-xs transition-all">
+                    <div className="flex flex-col items-center gap-4 sm:flex-row">
+                        {/* biome-ignore lint/performance/noImgElement: base64 data URL preview, next/image is not suitable */}
+                        <img
+                            src={photo}
+                            alt={t("a11y.photoPreview")}
+                            className="h-44 w-full rounded-xl border border-border/40 object-cover shadow-2xs sm:w-64"
+                        />
+                        <div className="flex flex-1 flex-col justify-between gap-3 self-stretch py-1">
+                            <div>
+                                <p className="font-semibold text-foreground text-sm">
+                                    {t("confirmation.photo")}
+                                </p>
+                                <p className="mt-0.5 text-muted-foreground text-xs">
+                                    {t("details.photoHint")}
+                                </p>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2 pt-2">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleCapture}
+                                    disabled={isProcessing}
+                                    className="cursor-pointer touch-manipulation gap-1.5 rounded-xl font-medium text-xs"
+                                >
+                                    <IconCamera
+                                        size="0.875rem"
+                                        strokeWidth={1.75}
+                                    />
+                                    {t("details.reuploadPhoto")}
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={handleRemove}
+                                    className="cursor-pointer touch-manipulation gap-1.5 rounded-xl font-medium text-xs"
+                                >
+                                    <IconX size="0.875rem" strokeWidth={1.75} />
+                                    {t("details.removePhoto")}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             ) : (
-                <Button
+                <button
                     type="button"
-                    variant="outline"
                     onClick={handleCapture}
                     disabled={isProcessing}
-                    className="touch-manipulation gap-2"
-                >
-                    {isProcessing ? (
-                        <IconLoader2
-                            size="1rem"
-                            strokeWidth={1.75}
-                            className="animate-spin"
-                        />
-                    ) : (
-                        <IconCamera size="1rem" strokeWidth={1.75} />
+                    className={cn(
+                        "group relative flex w-full cursor-pointer touch-manipulation flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-200",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        isProcessing
+                            ? "cursor-wait border-primary/40 bg-primary/5"
+                            : "border-border/60 bg-muted/20 hover:border-primary/60 hover:bg-muted/40 hover:shadow-2xs",
                     )}
-                    {t("details.photoLabel")}
-                </Button>
+                >
+                    <div className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary shadow-2xs transition-transform duration-200 group-hover:scale-110 group-hover:bg-primary/15">
+                        {isProcessing ? (
+                            <IconLoader2
+                                size="1.75rem"
+                                strokeWidth={1.75}
+                                className="animate-spin"
+                            />
+                        ) : (
+                            <IconCamera size="1.75rem" strokeWidth={1.75} />
+                        )}
+                    </div>
+                    <div className="space-y-1">
+                        <p className="font-semibold text-base text-foreground transition-colors group-hover:text-primary">
+                            {t("details.photoLabel")}
+                        </p>
+                        <p className="mx-auto max-w-xs text-muted-foreground text-xs">
+                            {t("details.photoHint")}
+                        </p>
+                    </div>
+                </button>
             )}
 
             {error && <p className="text-destructive text-xs">{error}</p>}
@@ -216,6 +223,18 @@ export function DetailsScreen() {
     const { t } = useLanguage();
     const { draft, setDescription, goBack } = useStepNavigation();
     const { submit, isSubmitting, error: submitError } = useSubmission();
+    const { isOnline } = useOfflineSync();
+    const {
+        voiceState,
+        voiceErrorKey,
+        interimText,
+        analyserNode,
+        toggleListening,
+        isSupported,
+        isListening,
+    } = useVoiceInput();
+
+    const isMicDisabled = !isSupported || !isOnline;
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -230,101 +249,164 @@ export function DetailsScreen() {
     );
 
     return (
-        <div className="flex flex-1 flex-col gap-5">
-            <div>
-                <h2 className="font-semibold text-xl tracking-tight">
-                    {t("details.title")}
-                </h2>
-                <p className="mt-1 text-muted-foreground text-sm">
-                    {t("details.subtitle")}
-                </p>
+        <div className="flex flex-1 flex-col gap-6">
+            {/* Unified header block with category badge, title, and subtitle */}
+            <div className="flex flex-col gap-2.5 border-border/40 border-b pb-5">
+                <div>
+                    <SelectedCategoryBadge />
+                </div>
+                <div className="space-y-1">
+                    <h2 className="font-bold text-2xl text-foreground tracking-tight sm:text-3xl">
+                        {t("details.title")}
+                    </h2>
+                    <p className="text-muted-foreground text-sm">
+                        {t("details.subtitle")}
+                    </p>
+                </div>
             </div>
 
-            <SelectedCategoryBadge />
+            {/* Description textarea with integrated voice trigger and waveform */}
+            <div className="space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                    <label
+                        htmlFor="issue-description"
+                        className="block font-semibold text-foreground text-sm"
+                    >
+                        {t("details.descriptionLabel")}
+                    </label>
 
-            {/* Description textarea */}
-            <div className="space-y-1.5">
-                <label
-                    htmlFor="issue-description"
-                    className="block font-medium text-sm"
-                >
-                    {t("details.descriptionLabel")}
-                </label>
+                    {/* Mic button + waveform visible whenever needed */}
+                    {VOICE_CONFIG.ENABLE_VOICE_RECOGNITION && (
+                        <div className="flex items-center gap-2 rounded-full border border-border/60 bg-muted/40 p-1 pl-2 shadow-2xs">
+                            <MiniWaveform
+                                analyserNode={analyserNode}
+                                isActive={isListening}
+                            />
+                            <button
+                                type="button"
+                                onClick={toggleListening}
+                                disabled={isMicDisabled}
+                                className={cn(
+                                    "flex cursor-pointer touch-manipulation items-center gap-1.5 rounded-full px-3 py-1 font-medium text-xs transition-all duration-200",
+                                    isMicDisabled
+                                        ? "cursor-not-allowed bg-muted/50 text-muted-foreground/30"
+                                        : isListening
+                                          ? "animate-pulse bg-rose-500 text-white shadow-rose-500/25 shadow-xs"
+                                          : "bg-primary text-primary-foreground shadow-2xs hover:bg-primary/90",
+                                )}
+                                aria-label={t("details.voiceLabel")}
+                            >
+                                {isListening ? (
+                                    <>
+                                        <IconMicrophoneOff
+                                            size="0.875rem"
+                                            strokeWidth={2}
+                                        />
+                                        <span>{t("details.voiceStop")}</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <IconMicrophone
+                                            size="0.875rem"
+                                            strokeWidth={2}
+                                        />
+                                        <span>{t("details.voiceLabel")}</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    )}
+                </div>
+
                 <textarea
                     ref={textareaRef}
                     id="issue-description"
                     value={draft.description}
                     onChange={handleTextChange}
                     placeholder={t("details.descriptionPlaceholder")}
-                    rows={4}
+                    rows={5}
                     maxLength={2000}
                     className={cn(
-                        "w-full resize-none rounded-lg border bg-card px-3 py-2.5",
-                        "text-foreground text-sm placeholder:text-muted-foreground/60",
-                        "transition-colors duration-200",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        "max-h-100 min-h-36 w-full resize-y rounded-xl border bg-card px-3.5 py-3",
+                        "text-foreground text-sm leading-relaxed placeholder:text-muted-foreground/60",
+                        "shadow-2xs transition-all duration-200",
+                        "focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
                         !isValid && charCount > 0
-                            ? "border-destructive/50"
-                            : "border-border",
+                            ? "border-destructive/50 focus-visible:border-destructive"
+                            : "border-border/80 hover:border-border",
                     )}
                 />
-                <div className="flex items-center justify-between">
-                    {!isValid && charCount > 0 && (
+
+                <div className="flex min-h-5 items-center justify-between">
+                    {!isOnline ? (
+                        <p className="text-destructive text-xs">
+                            {t("details.voiceErrorNetwork")}
+                        </p>
+                    ) : voiceState === "error" && voiceErrorKey ? (
+                        <p className="text-destructive text-xs">
+                            {t(voiceErrorKey as TranslationKeys)}
+                        </p>
+                    ) : isListening && interimText ? (
+                        <p className="text-muted-foreground text-xs italic">
+                            {interimText}...
+                        </p>
+                    ) : !isValid && charCount > 0 ? (
                         <p className="text-destructive text-xs">
                             {t("details.minChars")}
                         </p>
+                    ) : (
+                        <div />
                     )}
                     <p
                         className={cn(
-                            "ml-auto text-xs tabular-nums",
+                            "ml-auto font-medium text-xs tabular-nums",
                             isValid
                                 ? "text-muted-foreground"
                                 : "text-destructive",
                         )}
                     >
-                        {charCount}
+                        {charCount} / 2000
                     </p>
                 </div>
             </div>
 
-            {/* Voice input - controlled via feature flag */}
-            {VOICE_CONFIG.ENABLE_VOICE_RECOGNITION && <VoiceInputButton />}
-
-            {/* Photo capture */}
+            {/* Photo capture dropper */}
             <PhotoCapture />
 
             {submitError && (
                 <p className="text-destructive text-xs">{submitError}</p>
             )}
 
-            {/* Navigation */}
-            <div className="mt-auto flex gap-3 pt-4 md:justify-end md:gap-4 md:pt-8">
-                <Button
-                    type="button"
-                    onClick={goBack}
-                    variant="outline"
-                    size="lg"
-                    className="pointer-hover:hover:-translate-y-0.5 flex-1 touch-manipulation transition-all duration-200 md:h-12 md:w-36 md:flex-none md:rounded-xl"
-                    disabled={isSubmitting}
-                >
-                    {t("nav.back")}
-                </Button>
-                <Button
-                    type="button"
-                    onClick={submit}
-                    size="lg"
-                    className="pointer-hover:hover:-translate-y-0.5 flex-1 touch-manipulation gap-2 transition-all duration-200 pointer-hover:hover:shadow-lg md:h-12 md:w-48 md:flex-none md:rounded-xl md:font-semibold md:shadow-md"
-                    disabled={!isValid || isSubmitting}
-                >
-                    {isSubmitting && (
-                        <IconLoader2
-                            size="1rem"
-                            strokeWidth={1.75}
-                            className="animate-spin"
-                        />
-                    )}
-                    {t("nav.next")}
-                </Button>
+            {/* Purposeful Navigation Dock */}
+            <div className="mt-8 border-border/40 border-t pt-4">
+                <div className="flex items-center justify-between gap-3 rounded-2xl border border-border/80 bg-muted/20 p-3.5 shadow-xs sm:px-5 sm:py-4">
+                    <Button
+                        type="button"
+                        onClick={goBack}
+                        variant="outline"
+                        size="lg"
+                        className="flex-1 cursor-pointer touch-manipulation rounded-xl font-medium shadow-2xs transition-all duration-200 hover:bg-background hover:text-foreground sm:w-36 sm:flex-none"
+                        disabled={isSubmitting}
+                    >
+                        {t("nav.back")}
+                    </Button>
+                    <Button
+                        type="button"
+                        onClick={submit}
+                        size="lg"
+                        className="pointer-hover:hover:-translate-y-0.5 flex-[1.5] cursor-pointer touch-manipulation gap-2 rounded-xl bg-primary font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow sm:w-48 sm:flex-none"
+                        disabled={!isValid || isSubmitting}
+                    >
+                        {isSubmitting && (
+                            <IconLoader2
+                                size="1.125rem"
+                                strokeWidth={1.75}
+                                className="animate-spin"
+                            />
+                        )}
+                        {t("nav.next")}
+                    </Button>
+                </div>
             </div>
         </div>
     );
