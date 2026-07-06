@@ -1,11 +1,16 @@
 "use client";
 
+import { StepProvider } from "@/hooks/step-context";
 import { LanguageProvider } from "@/i18n";
 
 /**
  * Wraps all client-side context providers.
- * New providers (StepContext, etc.) will be composed here.
+ * Order matters: outer providers are available to inner ones.
  */
 export function AppProviders({ children }: { children: React.ReactNode }) {
-    return <LanguageProvider>{children}</LanguageProvider>;
+    return (
+        <LanguageProvider>
+            <StepProvider>{children}</StepProvider>
+        </LanguageProvider>
+    );
 }
