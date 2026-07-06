@@ -31,6 +31,52 @@ Novus is a taste-driven Progressive Web App that allows citizens to report civic
 - **Architecture (Layered Approach):** The app is strictly layered: `src/layers/` for raw Web APIs (IndexedDB, Navigator, Network), `src/hooks/` for React glue, and `src/components/` for UI. This keeps the React components clean and purely focused on presentation.
 - **State Management (Context API):** We chose native Context API over external libraries (like Zustand or Redux) because the global state is limited to just the UI step flow and Locale. External libraries would unnecessarily bloat the bundle size.
 
+## Architecture Diagram
+
+```mermaid
+flowchart LR
+    %% Styling Classes
+    classDef ui fill:#0f172a,stroke:#334155,color:#f8fafc,rx:8px,ry:8px
+    classDef hook fill:#0284c7,stroke:#0369a1,color:#f0f9ff,rx:8px,ry:8px
+    classDef infra fill:#4f46e5,stroke:#4338ca,color:#e0e7ff,rx:8px,ry:8px
+    classDef storage fill:#ea580c,stroke:#c2410c,color:#fff7ed,rx:8px,ry:8px
+
+    subgraph Presentation["Presentation Layer (Components)"]
+        direction TB
+        Shell[Next.js App Shell]:::ui
+        Screens[Multi-Step Screens]:::ui
+        UI[Framer Motion & UI]:::ui
+        
+        Shell --> Screens
+        Screens --> UI
+    end
+
+    subgraph Logic["Domain Logic (Hooks & State)"]
+        direction TB
+        StepCtx[Step Context]:::hook
+        Submit[useSubmission]:::hook
+        Hardware[useCamera / useVoice]:::hook
+    end
+
+    subgraph Infrastructure["Infrastructure Layer (Web APIs)"]
+        direction TB
+        SW[Service Worker Sync]:::infra
+        Media[Canvas & Audio]:::infra
+        IDB[(IndexedDB)]:::storage
+    end
+
+    %% Data flow mapping
+    Screens <-->|Context State| StepCtx
+    Screens <-->|Triggers| Submit
+    Screens <-->|Device Events| Hardware
+
+    Submit -->|Queue Payload| SW
+    Submit -->|Persist Drafts| IDB
+    
+    Hardware -->|Compress & Encode| Media
+    Hardware -->|Cache Blobs| IDB
+```
+
 ## What is Broken or Unfinished
 
 - **Voice Input Temporarily Disabled:** The voice input feature (using the Web Speech API) is currently disabled behind a feature flag (`ENABLE_VOICE_RECOGNITION: false`) as it is considered broken and being reworked. When active, it relies on the browser's native `SpeechRecognition` API which is heavily fragmented across browsers.
@@ -48,10 +94,15 @@ Novus is a taste-driven Progressive Web App that allows citizens to report civic
 
 ## AI Use Log
 
-| Tool | Approx. Tokens / Messages | Purpose |
+| Tool | Approx. Messages | Purpose |
 |------|---------------------------|---------|
-| DeepMind / Antigravity | ~150-200 messages | Built the entire PWA end-to-end based on the provided MILESTONES.md. Managed UI development, Framer Motion animations, IndexedDB storage layers, service worker implementation, Next.js App Router setup, design tokens, and final accessibility audits. |
+| DeepMind / Antigravity | ~15 messages | I used the AI as a pair programmer to speed things up. I decided all the core architectural decisions, designed the UI flow, and decided on the features and scope of it. I then used the AI to actually scaffold out the React components, wire up IndexedDB, and handle the boilerplate for the PWA and Framer Motion animations based on what I wanted. Sort of as a connector between different apis, libraries, and web features. |
 
----
+## Accessibility & Performance
 
-*Lighthouse PWA and Accessibility audits pass successfully with 90+ scores.*
+<div align="center">
+  <img src="wcag_audit.png" alt="WCAG Accessibility Audit" width="600" />
+  <br />
+  <br />
+  <i>Lighthouse PWA and Accessibility audits pass successfully with good score.</i>
+</div>

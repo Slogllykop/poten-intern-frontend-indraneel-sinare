@@ -64,18 +64,21 @@ export function StepProvider({ children }: { children: React.ReactNode }) {
 
     const goNext = useCallback(() => {
         const idx = FLOW_STEPS.indexOf(currentStep);
+        // Guard: Prevent navigation beyond the predefined step sequence
         if (idx === -1 || idx >= FLOW_STEPS.length - 1) return;
         setDirection("forward");
         setCurrentStep(FLOW_STEPS[idx + 1]);
     }, [currentStep]);
 
     const goBack = useCallback(() => {
+        // Guard: If currently on the tracker, navigating back returns strictly to the category step
         if (currentStep === "tracker") {
             setDirection("backward");
             setCurrentStep("category");
             return;
         }
         const idx = FLOW_STEPS.indexOf(currentStep);
+        // Guard: Prevent backwards navigation if already on the first step
         if (idx <= 0) return;
         setDirection("backward");
         setCurrentStep(FLOW_STEPS[idx - 1]);
@@ -83,12 +86,15 @@ export function StepProvider({ children }: { children: React.ReactNode }) {
 
     const goToStep = useCallback(
         (step: Step) => {
+            // Guard: Ignore redundant navigation
             if (step === currentStep) return;
+            // The tracker is not in the linear FLOW_STEPS array, so it is always considered a 'forward' transition
             if (step === "tracker") {
                 setDirection("forward");
                 setCurrentStep("tracker");
                 return;
             }
+            // Determine transition direction dynamically based on the target index relative to the current index
             const target = FLOW_STEPS.indexOf(step);
             const current = FLOW_STEPS.indexOf(currentStep);
             setDirection(target >= current ? "forward" : "backward");
