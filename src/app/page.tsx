@@ -1,5 +1,6 @@
 "use client";
 
+import { CategoryScreen } from "@/components/screens/category-screen";
 import { AppShell } from "@/components/shared/app-shell";
 import { ScreenTransition } from "@/components/shared/screen-transition";
 
@@ -18,49 +19,7 @@ export default function Home() {
     return (
         <AppShell>
             <ScreenTransition stepKey={currentStep} direction={direction}>
-                {currentStep === "category" && (
-                    <div className="flex flex-1 flex-col gap-6">
-                        <div>
-                            <h2 className="font-semibold text-xl tracking-tight">
-                                {t("category.title")}
-                            </h2>
-                            <p className="mt-1 text-muted-foreground text-sm">
-                                {t("category.subtitle")}
-                            </p>
-                        </div>
-
-                        {/* Placeholder grid - replaced in Milestone 3 */}
-                        <div className="grid grid-cols-2 gap-3">
-                            {(
-                                [
-                                    "category.roads",
-                                    "category.water",
-                                    "category.electricity",
-                                    "category.sanitation",
-                                    "category.safety",
-                                    "category.other",
-                                ] as const
-                            ).map((key) => (
-                                <div
-                                    key={key}
-                                    className="rounded-xl border border-border bg-card p-4 text-center font-medium text-card-foreground text-sm"
-                                >
-                                    {t(key)}
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="mt-auto pt-4">
-                            <Button
-                                onClick={goNext}
-                                size="lg"
-                                className="w-full"
-                            >
-                                {t("nav.next")}
-                            </Button>
-                        </div>
-                    </div>
-                )}
+                {currentStep === "category" && <CategoryScreen />}
 
                 {currentStep === "details" && (
                     <div className="flex flex-1 flex-col gap-6">

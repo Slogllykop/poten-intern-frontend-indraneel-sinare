@@ -3,6 +3,7 @@
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant pointer-hover (@media (hover: hover) and (pointer: fine));
 
 /*
  * Design tokens for Civic Reporter.
