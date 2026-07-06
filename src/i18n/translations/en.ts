@@ -7,7 +7,7 @@ const translations = {
     "nav.back": "Back",
     "nav.next": "Next",
     "nav.submit": "Submit Report",
-    "nav.reportAnother": "Report Another Issue",
+    "nav.reportAnother": "Report",
     "nav.viewReports": "View My Reports",
 
     // Language toggle
@@ -73,7 +73,16 @@ const translations = {
 
     // Tracker
     "tracker.title": "My Reports",
+    "tracker.subtitle": "Track and manage your submitted civic reports",
     "tracker.empty": "No reports yet",
+    "tracker.emptySubtitle":
+        "You haven't reported any issues yet. Start reporting to improve your neighbourhood.",
+    "tracker.loading": "Loading reports...",
+    "tracker.noDescription": "No description provided",
+    "tracker.statusLabel": "Status:",
+    "tracker.pending": "Pending",
+    "tracker.currentStage": "Current active stage · Status processing",
+    "tracker.advanceStage": "Advance to Next Stage",
     "tracker.statusSubmitted": "Submitted",
     "tracker.statusUnderReview": "Under Review",
     "tracker.statusInProgress": "In Progress",

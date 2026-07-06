@@ -9,7 +9,7 @@ const translations: Translations = {
     "nav.back": "वापस",
     "nav.next": "आगे",
     "nav.submit": "रिपोर्ट जमा करें",
-    "nav.reportAnother": "एक और समस्या रिपोर्ट करें",
+    "nav.reportAnother": "रिपोर्ट",
     "nav.viewReports": "मेरी रिपोर्ट देखें",
 
     // Language toggle
@@ -72,7 +72,16 @@ const translations: Translations = {
 
     // Tracker
     "tracker.title": "मेरी रिपोर्ट",
+    "tracker.subtitle": "अपनी दर्ज की गई समस्याओं की स्थिति देखें",
     "tracker.empty": "अभी तक कोई रिपोर्ट नहीं",
+    "tracker.emptySubtitle":
+        "आपने अभी तक कोई समस्या दर्ज नहीं की है। अपने क्षेत्र में सुधार के लिए शुरुआत करें।",
+    "tracker.loading": "लोड हो रहा है...",
+    "tracker.noDescription": "कोई विवरण नहीं दिया गया",
+    "tracker.statusLabel": "स्थिति:",
+    "tracker.pending": "प्रतीक्षारत",
+    "tracker.currentStage": "वर्तमान सक्रिय चरण · स्थिति अपडेट की जा रही है",
+    "tracker.advanceStage": "अगली स्थिति में जाएं",
     "tracker.statusSubmitted": "जमा",
     "tracker.statusUnderReview": "समीक्षाधीन",
     "tracker.statusInProgress": "प्रगति पर",

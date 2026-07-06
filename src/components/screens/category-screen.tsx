@@ -32,12 +32,12 @@ export function CategoryScreen() {
     const prefersReducedMotion = useReducedMotion();
 
     return (
-        <div className="flex flex-1 flex-col gap-6">
-            <div>
-                <h2 className="font-semibold text-xl tracking-tight">
+        <div className="flex flex-1 flex-col gap-6 md:gap-8">
+            <div className="md:mb-2 md:text-center">
+                <h2 className="font-semibold text-xl tracking-tight md:text-3xl">
                     {t("category.title")}
                 </h2>
-                <p className="mt-1 text-muted-foreground text-sm">
+                <p className="mt-1 text-muted-foreground text-sm md:text-base">
                     {t("category.subtitle")}
                 </p>
             </div>
@@ -49,7 +49,7 @@ export function CategoryScreen() {
                 transition={
                     prefersReducedMotion ? { staggerChildren: 0 } : undefined
                 }
-                className="grid grid-cols-2 gap-3 sm:grid-cols-3"
+                className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-5"
             >
                 {categories.map((cat) => {
                     const isSelected = selectedCategory === cat.id;
@@ -64,13 +64,18 @@ export function CategoryScreen() {
                             whileTap={{ scale: 0.97 }}
                             onClick={() => selectCategory(cat.id)}
                             className={cn(
-                                "flex touch-manipulation flex-col items-center justify-center gap-3 p-4",
-                                "rounded-xl border transition-all duration-200",
+                                "flex touch-manipulation flex-col items-center justify-center gap-3 p-4 md:min-h-[150px] md:gap-4 md:p-7",
+                                "rounded-xl border transition-all duration-200 md:rounded-2xl",
                                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                                 // Hover lift only for pointer devices (not touch)
-                                "pointer-hover:hover:-translate-y-0.5 pointer-hover:hover:shadow-md",
+                                "pointer-hover:hover:-translate-y-1 pointer-hover:hover:shadow-lg",
                                 isSelected
-                                    ? [colors?.border, colors?.bg, colors?.text]
+                                    ? [
+                                          colors?.border,
+                                          colors?.bg,
+                                          colors?.text,
+                                          "shadow-md",
+                                      ]
                                     : "border-border bg-card text-card-foreground hover:border-primary/40 hover:bg-accent/5",
                             )}
                             aria-pressed={isSelected}
@@ -78,15 +83,22 @@ export function CategoryScreen() {
                         >
                             <div
                                 className={cn(
-                                    "flex size-10 items-center justify-center rounded-lg transition-colors duration-200",
+                                    "flex size-10 items-center justify-center rounded-lg transition-colors duration-200 md:size-14 md:rounded-2xl",
                                     isSelected
-                                        ? [colors?.iconBg, "text-white"]
+                                        ? [
+                                              colors?.iconBg,
+                                              "text-white shadow-sm",
+                                          ]
                                         : "bg-muted text-muted-foreground",
                                 )}
                             >
-                                <Icon size="1.25rem" strokeWidth={1.75} />
+                                <Icon
+                                    size="1.25rem"
+                                    strokeWidth={1.75}
+                                    className="md:size-7"
+                                />
                             </div>
-                            <span className="text-center font-medium text-sm leading-tight">
+                            <span className="text-center font-medium text-sm leading-tight md:text-base">
                                 {t(cat.labelKey)}
                             </span>
                         </motion.button>
@@ -94,12 +106,12 @@ export function CategoryScreen() {
                 })}
             </motion.div>
 
-            <div className="mt-auto pt-4">
+            <div className="mt-auto pt-4 md:flex md:justify-center md:pt-8">
                 <Button
                     type="button"
                     onClick={goNext}
                     size="lg"
-                    className="w-full touch-manipulation text-base shadow-sm"
+                    className="pointer-hover:hover:-translate-y-0.5 w-full touch-manipulation text-base shadow-sm transition-all duration-200 pointer-hover:hover:shadow-lg md:h-12 md:w-72 md:rounded-xl md:font-semibold md:shadow-md"
                     disabled={!selectedCategory}
                 >
                     {t("nav.next")}

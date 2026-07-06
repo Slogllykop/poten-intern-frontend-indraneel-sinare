@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
+import { ThemeProvider } from "@/components/providers/theme-provider";
 import { StepProvider } from "@/hooks/step-context";
 import { LanguageProvider } from "@/i18n";
 import { registerSW } from "@/layers/service-worker";
 
 /**
  * Wraps all client-side context providers.
- * Order matters: outer providers are available to inner ones.
+ * Order matters: ThemeProvider must be outermost so CSS class is set before hydration.
  */
 export function AppProviders({ children }: { children: React.ReactNode }) {
     useEffect(() => {
@@ -15,8 +16,10 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     }, []);
 
     return (
-        <LanguageProvider>
-            <StepProvider>{children}</StepProvider>
-        </LanguageProvider>
+        <ThemeProvider>
+            <LanguageProvider>
+                <StepProvider>{children}</StepProvider>
+            </LanguageProvider>
+        </ThemeProvider>
     );
 }

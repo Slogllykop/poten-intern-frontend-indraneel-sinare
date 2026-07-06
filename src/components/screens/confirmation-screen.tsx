@@ -241,17 +241,17 @@ export function ConfirmationScreen() {
                 )}
             </motion.div>
 
-            {/* Reset / Tracker action buttons */}
+            {/* Reset / Tracker action buttons — hidden on mobile since mobile bottom nav handles this */}
             <motion.div
                 variants={itemVariants}
-                className="mt-auto flex flex-col gap-2.5 pt-4 sm:flex-row"
+                className="mt-auto hidden md:flex md:justify-center md:gap-4 md:pt-8"
             >
                 <Button
                     type="button"
                     variant="outline"
                     onClick={() => router.push("/issues")}
                     size="lg"
-                    className="flex-1 touch-manipulation gap-2 text-sm shadow-sm"
+                    className="pointer-hover:hover:-translate-y-0.5 flex-1 touch-manipulation gap-2 text-sm shadow-sm transition-all duration-200 md:h-12 md:w-56 md:flex-none md:rounded-xl md:text-base"
                 >
                     <IconClipboardList size="1.25rem" strokeWidth={2} />
                     {t("tracker.title")}
@@ -260,7 +260,7 @@ export function ConfirmationScreen() {
                     type="button"
                     onClick={resetFlow}
                     size="lg"
-                    className="flex-1 touch-manipulation gap-2 text-sm shadow-sm"
+                    className="pointer-hover:hover:-translate-y-0.5 flex-1 touch-manipulation gap-2 text-sm shadow-sm transition-all duration-200 pointer-hover:hover:shadow-lg md:h-12 md:w-64 md:flex-none md:rounded-xl md:font-semibold md:text-base md:shadow-md"
                 >
                     <IconPlus size="1.25rem" strokeWidth={2} />
                     {t("confirmation.reportAnother")}

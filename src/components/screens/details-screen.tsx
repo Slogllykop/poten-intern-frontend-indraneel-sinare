@@ -298,13 +298,13 @@ export function DetailsScreen() {
             )}
 
             {/* Navigation */}
-            <div className="mt-auto flex gap-3 pt-4">
+            <div className="mt-auto flex gap-3 pt-4 md:justify-end md:gap-4 md:pt-8">
                 <Button
                     type="button"
                     onClick={goBack}
                     variant="outline"
                     size="lg"
-                    className="flex-1 touch-manipulation"
+                    className="pointer-hover:hover:-translate-y-0.5 flex-1 touch-manipulation transition-all duration-200 md:h-12 md:w-36 md:flex-none md:rounded-xl"
                     disabled={isSubmitting}
                 >
                     {t("nav.back")}
@@ -313,7 +313,7 @@ export function DetailsScreen() {
                     type="button"
                     onClick={submit}
                     size="lg"
-                    className="flex-1 touch-manipulation gap-2"
+                    className="pointer-hover:hover:-translate-y-0.5 flex-1 touch-manipulation gap-2 transition-all duration-200 pointer-hover:hover:shadow-lg md:h-12 md:w-48 md:flex-none md:rounded-xl md:font-semibold md:shadow-md"
                     disabled={!isValid || isSubmitting}
                 >
                     {isSubmitting && (

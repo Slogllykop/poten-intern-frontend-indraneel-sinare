@@ -132,9 +132,7 @@ function TimelineView({ steps }: { steps: TimelineStep[] }) {
                                     </span>
                                 ) : (
                                     <span className="mb-0.5 block font-normal text-[0.6875rem] text-muted-foreground/50">
-                                        {locale === "hi"
-                                            ? "प्रतीक्षारत"
-                                            : "Pending"}
+                                        {t("tracker.pending")}
                                     </span>
                                 )}
 
@@ -155,9 +153,7 @@ function TimelineView({ steps }: { steps: TimelineStep[] }) {
                                     <div className="mt-1 flex items-center gap-1.5">
                                         <span className="size-1.5 animate-pulse rounded-full bg-primary" />
                                         <span className="font-medium text-[0.6875rem] text-primary sm:text-xs">
-                                            {locale === "hi"
-                                                ? "वर्तमान सक्रिय चरण • स्थिति अपडेट की जा रही है"
-                                                : "Current active stage • Status processing"}
+                                            {t("tracker.currentStage")}
                                         </span>
                                     </div>
                                 )}
@@ -214,9 +210,7 @@ export function TrackerScreen() {
                         {t("tracker.title")}
                     </h2>
                     <p className="text-muted-foreground text-xs">
-                        {locale === "hi"
-                            ? "अपनी दर्ज की गई समस्याओं की स्थिति देखें"
-                            : "Track and manage your submitted civic reports"}
+                        {t("tracker.subtitle")}
                     </p>
                 </div>
                 <Button
@@ -234,7 +228,7 @@ export function TrackerScreen() {
             {/* List or Empty State */}
             {isLoading && submissions.length === 0 ? (
                 <div className="mt-6 flex flex-1 items-center justify-center py-12 text-muted-foreground text-sm">
-                    {locale === "hi" ? "लोड हो रहा है..." : "Loading reports..."}
+                    {t("tracker.loading")}
                 </div>
             ) : submissions.length === 0 ? (
                 <motion.div
@@ -248,9 +242,7 @@ export function TrackerScreen() {
                         {t("tracker.empty")}
                     </h3>
                     <p className="mt-1 max-w-xs text-muted-foreground text-xs">
-                        {locale === "hi"
-                            ? "आपने अभी तक कोई समस्या दर्ज नहीं की है। अपने क्षेत्र में सुधार के लिए शुरुआत करें।"
-                            : "You haven't reported any issues yet. Start reporting to improve your neighbourhood."}
+                        {t("tracker.emptySubtitle")}
                     </p>
                     <Button
                         type="button"
@@ -358,9 +350,7 @@ export function TrackerScreen() {
                                     <div className="mt-3.5 mb-2 flex w-full justify-start text-left">
                                         <p className="line-clamp-2 w-full text-left font-normal text-foreground/90 text-xs leading-relaxed sm:text-sm">
                                             {sub.description ||
-                                                (locale === "hi"
-                                                    ? "कोई विवरण नहीं दिया गया"
-                                                    : "No description provided")}
+                                                t("tracker.noDescription")}
                                         </p>
                                     </div>
 
@@ -373,9 +363,7 @@ export function TrackerScreen() {
                                                     <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
                                                 </span>
                                                 <span className="font-semibold text-foreground/90">
-                                                    {locale === "hi"
-                                                        ? "स्थिति:"
-                                                        : "Status:"}{" "}
+                                                    {t("tracker.statusLabel")}{" "}
                                                     {t(currentStepObj.labelKey)}
                                                 </span>
                                             </div>
@@ -406,9 +394,7 @@ export function TrackerScreen() {
                                             className="h-7 touch-manipulation gap-1.5 rounded-xl px-3 font-semibold text-[0.6875rem] shadow-none transition-all hover:bg-secondary/80 active:scale-95"
                                         >
                                             <span>
-                                                {locale === "hi"
-                                                    ? "अगली स्थिति में जाएं"
-                                                    : "Advance to Next Stage"}
+                                                {t("tracker.advanceStage")}
                                             </span>
                                             <IconArrowRight
                                                 size="0.875rem"
