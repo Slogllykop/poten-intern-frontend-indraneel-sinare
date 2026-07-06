@@ -69,6 +69,7 @@ const translations = {
     "confirmation.status": "Status",
     "confirmation.statusSubmitted": "Submitted",
     "confirmation.statusOffline": "Saved locally",
+    "confirmation.reportAnother": "Report Another Issue",
 
     // Tracker
     "tracker.title": "My Reports",

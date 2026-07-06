@@ -20,7 +20,7 @@ export interface Category {
     color: string;
 }
 
-const CATEGORIES: Category[] = [
+export const CATEGORIES: Category[] = [
     {
         id: "roads",
         labelKey: "category.roads",

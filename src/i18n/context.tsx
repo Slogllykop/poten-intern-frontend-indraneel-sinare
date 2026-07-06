@@ -4,6 +4,7 @@ import {
     createContext,
     useCallback,
     useEffect,
+    useLayoutEffect,
     useMemo,
     useState,
 } from "react";
@@ -29,19 +30,20 @@ export interface LanguageContextValue {
 
 export const LanguageContext = createContext<LanguageContextValue | null>(null);
 
-function getInitialLocale(): Locale {
-    if (typeof window === "undefined") return "en";
-    try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored === "en" || stored === "hi") return stored;
-    } catch {
-        // localStorage unavailable (private browsing, etc.)
-    }
-    return "en";
-}
-
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-    const [locale, setLocaleState] = useState<Locale>(getInitialLocale);
+    const [locale, setLocaleState] = useState<Locale>("en");
+
+    // Load stored locale after initial hydration to prevent SSR mismatch
+    useLayoutEffect(() => {
+        try {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored === "en" || stored === "hi") {
+                setLocaleState(stored);
+            }
+        } catch {
+            // localStorage unavailable
+        }
+    }, []);
 
     const setLocale = useCallback((next: Locale) => {
         setLocaleState(next);

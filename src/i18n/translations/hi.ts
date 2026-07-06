@@ -68,6 +68,7 @@ const translations: Translations = {
     "confirmation.status": "स्थिति",
     "confirmation.statusSubmitted": "जमा हो गया",
     "confirmation.statusOffline": "स्थानीय रूप से सहेजा गया",
+    "confirmation.reportAnother": "एक और समस्या दर्ज करें",
 
     // Tracker
     "tracker.title": "मेरी रिपोर्ट",

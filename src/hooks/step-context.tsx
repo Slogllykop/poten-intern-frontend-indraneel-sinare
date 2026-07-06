@@ -7,7 +7,13 @@ import {
     useMemo,
     useState,
 } from "react";
-import type { CategoryId, Direction, Step, SubmissionDraft } from "@/types";
+import type {
+    CategoryId,
+    Direction,
+    Step,
+    Submission,
+    SubmissionDraft,
+} from "@/types";
 
 // ---------------------------------------------------------------------------
 // Step flow constants
@@ -34,6 +40,8 @@ export interface StepContextValue {
     direction: Direction;
     /** The in-progress submission data */
     draft: SubmissionDraft;
+    /** Most recently completed submission for displaying on confirmation screen */
+    lastSubmission: Submission | null;
 
     // Navigation
     goNext: () => void;
@@ -46,6 +54,7 @@ export interface StepContextValue {
     setDescription: (description: string) => void;
     setPhoto: (photo: string | null) => void;
     clearDraft: () => void;
+    setLastSubmission: (submission: Submission | null) => void;
 }
 
 const StepContext = createContext<StepContextValue | null>(null);
@@ -58,6 +67,9 @@ export function StepProvider({ children }: { children: React.ReactNode }) {
     const [stepIndex, setStepIndex] = useState(0);
     const [direction, setDirection] = useState<Direction>("forward");
     const [draft, setDraft] = useState<SubmissionDraft>(INITIAL_DRAFT);
+    const [lastSubmission, setLastSubmission] = useState<Submission | null>(
+        null,
+    );
 
     const currentStep = STEPS[stepIndex];
 
@@ -90,6 +102,7 @@ export function StepProvider({ children }: { children: React.ReactNode }) {
         setDirection("forward");
         setStepIndex(0);
         setDraft(INITIAL_DRAFT);
+        setLastSubmission(null);
     }, []);
 
     const setCategory = useCallback((category: CategoryId) => {
@@ -114,6 +127,7 @@ export function StepProvider({ children }: { children: React.ReactNode }) {
             stepIndex,
             direction,
             draft,
+            lastSubmission,
             goNext,
             goBack,
             reset,
@@ -122,12 +136,14 @@ export function StepProvider({ children }: { children: React.ReactNode }) {
             setDescription,
             setPhoto,
             clearDraft,
+            setLastSubmission,
         }),
         [
             currentStep,
             stepIndex,
             direction,
             draft,
+            lastSubmission,
             goNext,
             goBack,
             reset,

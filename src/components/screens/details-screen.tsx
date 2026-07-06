@@ -13,6 +13,7 @@ import { Waveform } from "@/components/shared/waveform";
 import { Button } from "@/components/ui/button";
 import { useStepNavigation } from "@/hooks/step-context";
 import { useCamera } from "@/hooks/use-camera";
+import { useSubmission } from "@/hooks/use-submission";
 import { useVoiceInput } from "@/hooks/use-voice-input";
 import { useLanguage } from "@/i18n";
 import type { TranslationKeys } from "@/i18n/translations/en";
@@ -217,7 +218,8 @@ function PhotoCapture() {
 /** Main details screen: description + voice + photo + navigation */
 export function DetailsScreen() {
     const { t } = useLanguage();
-    const { draft, setDescription, goNext, goBack } = useStepNavigation();
+    const { draft, setDescription, goBack } = useStepNavigation();
+    const { submit, isSubmitting, error: submitError } = useSubmission();
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -294,6 +296,10 @@ export function DetailsScreen() {
             {/* Photo capture */}
             <PhotoCapture />
 
+            {submitError && (
+                <p className="text-destructive text-xs">{submitError}</p>
+            )}
+
             {/* Navigation */}
             <div className="mt-auto flex gap-3 pt-4">
                 <Button
@@ -302,16 +308,24 @@ export function DetailsScreen() {
                     variant="outline"
                     size="lg"
                     className="flex-1 touch-manipulation"
+                    disabled={isSubmitting}
                 >
                     {t("nav.back")}
                 </Button>
                 <Button
                     type="button"
-                    onClick={goNext}
+                    onClick={submit}
                     size="lg"
-                    className="flex-1 touch-manipulation"
-                    disabled={!isValid}
+                    className="flex-1 touch-manipulation gap-2"
+                    disabled={!isValid || isSubmitting}
                 >
+                    {isSubmitting && (
+                        <IconLoader2
+                            size="1rem"
+                            strokeWidth={1.75}
+                            className="animate-spin"
+                        />
+                    )}
                     {t("nav.next")}
                 </Button>
             </div>
