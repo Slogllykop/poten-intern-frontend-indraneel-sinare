@@ -37,8 +37,8 @@ export interface Submission {
     createdAt: number; // Date.now() timestamp
 }
 
-/** Step identifiers for the 3-screen flow */
-export type Step = "category" | "details" | "confirmation";
+/** Step identifiers for the app screens */
+export type Step = "category" | "details" | "confirmation" | "tracker";
 
 /** Direction of navigation for transition animation */
 export type Direction = "forward" | "backward";

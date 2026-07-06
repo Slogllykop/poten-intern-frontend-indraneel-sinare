@@ -64,43 +64,53 @@ const StepContext = createContext<StepContextValue | null>(null);
 // ---------------------------------------------------------------------------
 
 export function StepProvider({ children }: { children: React.ReactNode }) {
-    const [stepIndex, setStepIndex] = useState(0);
+    const [currentStep, setCurrentStep] = useState<Step>("category");
     const [direction, setDirection] = useState<Direction>("forward");
     const [draft, setDraft] = useState<SubmissionDraft>(INITIAL_DRAFT);
     const [lastSubmission, setLastSubmission] = useState<Submission | null>(
         null,
     );
 
-    const currentStep = STEPS[stepIndex];
+    const stepIndex = STEPS.indexOf(currentStep);
 
     const goNext = useCallback(() => {
-        setStepIndex((prev) => {
-            if (prev >= STEPS.length - 1) return prev;
-            setDirection("forward");
-            return prev + 1;
-        });
-    }, []);
+        const idx = STEPS.indexOf(currentStep);
+        if (idx === -1 || idx >= STEPS.length - 1) return;
+        setDirection("forward");
+        setCurrentStep(STEPS[idx + 1]);
+    }, [currentStep]);
 
     const goBack = useCallback(() => {
-        setStepIndex((prev) => {
-            if (prev <= 0) return prev;
+        if (currentStep === "tracker") {
             setDirection("backward");
-            return prev - 1;
-        });
-    }, []);
+            setCurrentStep("category");
+            return;
+        }
+        const idx = STEPS.indexOf(currentStep);
+        if (idx <= 0) return;
+        setDirection("backward");
+        setCurrentStep(STEPS[idx - 1]);
+    }, [currentStep]);
 
-    const goToStep = useCallback((step: Step) => {
-        const target = STEPS.indexOf(step);
-        if (target === -1) return;
-        setStepIndex((prev) => {
-            setDirection(target > prev ? "forward" : "backward");
-            return target;
-        });
-    }, []);
+    const goToStep = useCallback(
+        (step: Step) => {
+            if (step === currentStep) return;
+            if (step === "tracker") {
+                setDirection("forward");
+                setCurrentStep("tracker");
+                return;
+            }
+            const target = STEPS.indexOf(step);
+            const current = STEPS.indexOf(currentStep);
+            setDirection(target >= current ? "forward" : "backward");
+            setCurrentStep(step);
+        },
+        [currentStep],
+    );
 
     const reset = useCallback(() => {
         setDirection("forward");
-        setStepIndex(0);
+        setCurrentStep("category");
         setDraft(INITIAL_DRAFT);
         setLastSubmission(null);
     }, []);

@@ -3,10 +3,12 @@
 import {
     IconCheck,
     IconCircleCheck,
+    IconClipboardList,
     IconCopy,
     IconPlus,
 } from "@tabler/icons-react";
 import { motion, type Variants } from "motion/react";
+import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES } from "@/hooks/use-categories";
@@ -92,11 +94,12 @@ const itemVariants: Variants = {
 
 /**
  * Screen 3: Confirmation
- * Displays reference ID with copy button, summary card, and option to report another.
+ * Displays reference ID with copy button, summary card, and options to view tracker or report another.
  */
 export function ConfirmationScreen() {
     const { t } = useLanguage();
     const { lastSubmission, resetFlow } = useSubmission();
+    const router = useRouter();
     const [copied, setCopied] = useState(false);
 
     const handleCopy = useCallback(async () => {
@@ -262,13 +265,26 @@ export function ConfirmationScreen() {
                 )}
             </motion.div>
 
-            {/* Reset / Report Another button */}
-            <motion.div variants={itemVariants} className="mt-auto pt-4">
+            {/* Reset / Tracker action buttons */}
+            <motion.div
+                variants={itemVariants}
+                className="mt-auto flex flex-col gap-2.5 pt-4 sm:flex-row"
+            >
+                <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => router.push("/issues")}
+                    size="lg"
+                    className="flex-1 touch-manipulation gap-2 text-sm shadow-sm"
+                >
+                    <IconClipboardList size="1.25rem" strokeWidth={2} />
+                    {t("tracker.title")}
+                </Button>
                 <Button
                     type="button"
                     onClick={resetFlow}
                     size="lg"
-                    className="w-full touch-manipulation gap-2 text-base shadow-sm"
+                    className="flex-1 touch-manipulation gap-2 text-sm shadow-sm"
                 >
                     <IconPlus size="1.25rem" strokeWidth={2} />
                     {t("confirmation.reportAnother")}

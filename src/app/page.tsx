@@ -3,12 +3,13 @@
 import { CategoryScreen } from "@/components/screens/category-screen";
 import { ConfirmationScreen } from "@/components/screens/confirmation-screen";
 import { DetailsScreen } from "@/components/screens/details-screen";
+import { TrackerScreen } from "@/components/screens/tracker-screen";
 import { AppShell } from "@/components/shared/app-shell";
 import { ScreenTransition } from "@/components/shared/screen-transition";
 import { useStepNavigation } from "@/hooks/step-context";
 
 /**
- * Main page: renders the 3-screen flow inside the app shell.
+ * Main page: renders the 3-screen flow and status tracker inside the app shell.
  */
 export default function Home() {
     const { currentStep, direction } = useStepNavigation();
@@ -21,6 +22,8 @@ export default function Home() {
                 {currentStep === "details" && <DetailsScreen />}
 
                 {currentStep === "confirmation" && <ConfirmationScreen />}
+
+                {currentStep === "tracker" && <TrackerScreen />}
             </ScreenTransition>
         </AppShell>
     );

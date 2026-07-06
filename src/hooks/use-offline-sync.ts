@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import {
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+    useSyncExternalStore,
+} from "react";
 import {
     isOnline as getIsOnline,
     offStatusChange,
@@ -20,14 +26,20 @@ export interface UseOfflineSyncReturn {
     refreshPending: () => Promise<void>;
 }
 
+function subscribe(callback: () => void) {
+    onStatusChange(callback);
+    return () => offStatusChange(callback);
+}
+
 /**
  * Hook to monitor offline status, track pending sync queue, and automatically
  * sync stored offline submissions when connectivity is restored.
  */
 export function useOfflineSync(): UseOfflineSyncReturn {
-    const [isOnline, setIsOnline] = useState<boolean>(true);
+    const isOnline = useSyncExternalStore(subscribe, getIsOnline, () => true);
     const [pendingCount, setPendingCount] = useState<number>(0);
     const [isSyncing, setIsSyncing] = useState<boolean>(false);
+
     const [lastSyncedCount, setLastSyncedCount] = useState<number>(0);
 
     const checkPending = useCallback(async () => {
@@ -64,22 +76,20 @@ export function useOfflineSync(): UseOfflineSyncReturn {
         }
     }, [isSyncing, checkPending]);
 
+    const syncPendingRef = useRef(syncPending);
     useEffect(() => {
-        setIsOnline(getIsOnline());
+        syncPendingRef.current = syncPending;
+    }, [syncPending]);
+
+    useEffect(() => {
         checkPending();
+    }, [checkPending]);
 
-        const handleStatus = (online: boolean) => {
-            setIsOnline(online);
-            if (online) {
-                syncPending();
-            }
-        };
-
-        onStatusChange(handleStatus);
-        return () => {
-            offStatusChange(handleStatus);
-        };
-    }, [checkPending, syncPending]);
+    useEffect(() => {
+        if (isOnline) {
+            syncPendingRef.current();
+        }
+    }, [isOnline]);
 
     return {
         isOnline,

@@ -1,4 +1,4 @@
-const CACHE_NAME = "civic-reporter-v1";
+const CACHE_NAME = "civic-reporter-v2";
 const STATIC_ASSETS = ["/", "/manifest.webmanifest", "/favicon.ico"];
 
 // Install event: precache app shell
@@ -11,7 +11,7 @@ self.addEventListener("install", (event) => {
     self.skipWaiting();
 });
 
-// Activate event: clean old caches
+// Activate event: clean old caches immediately and take control
 self.addEventListener("activate", (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
@@ -39,12 +39,17 @@ self.addEventListener("fetch", (event) => {
         return;
     }
 
-    // Network-only for API calls or server actions
-    if (request.url.includes("/api/") || request.headers.has("Next-Action")) {
+    // Network-only for API calls, server actions, or Next.js dev websocket/hot-reload
+    if (
+        request.url.includes("/api/") ||
+        request.headers.has("Next-Action") ||
+        request.url.includes("/_next/webpack-hmr") ||
+        request.url.includes("/__nextjs")
+    ) {
         return;
     }
 
-    // Cache-first for static assets (images, fonts, stylesheets, scripts)
+    // Cache-first for immutable Next.js static assets, scripts, styles, fonts, and icons
     if (
         request.destination === "image" ||
         request.destination === "font" ||
@@ -56,23 +61,27 @@ self.addEventListener("fetch", (event) => {
     ) {
         event.respondWith(
             caches
-                .match(request)
-                .then((response) => {
-                    return (
-                        response ||
-                        fetch(request).then((res) => {
-                            if (res.ok) {
-                                const clone = res.clone();
-                                caches.open(CACHE_NAME).then((cache) => {
-                                    cache.put(request, clone);
-                                });
-                            }
-                            return res;
-                        })
-                    );
+                .match(request, { ignoreSearch: true })
+                .then((cachedResponse) => {
+                    if (cachedResponse) {
+                        return cachedResponse;
+                    }
+                    return fetch(request).then((networkResponse) => {
+                        if (networkResponse?.ok) {
+                            const clone = networkResponse.clone();
+                            caches.open(CACHE_NAME).then((cache) => {
+                                cache.put(request, clone);
+                            });
+                        }
+                        return networkResponse;
+                    });
                 })
                 .catch(() => {
-                    return caches.match("/");
+                    // NEVER return HTML fallback for script/style/image requests as it breaks React Hydration!
+                    return new Response("Asset Unavailable Offline", {
+                        status: 408,
+                        statusText: "Offline Asset Missing",
+                    });
                 }),
         );
         return;
@@ -82,44 +91,75 @@ self.addEventListener("fetch", (event) => {
     if (request.destination === "document" || request.mode === "navigate") {
         event.respondWith(
             fetch(request)
-                .then((response) => {
-                    if (response.ok) {
-                        const clone = response.clone();
+                .then((networkResponse) => {
+                    if (networkResponse?.ok) {
+                        const clone = networkResponse.clone();
                         caches.open(CACHE_NAME).then((cache) => {
                             cache.put(request, clone);
                         });
                     }
-                    return response;
+                    return networkResponse;
                 })
                 .catch(() => {
-                    return caches.match("/").then((cached) => {
-                        return (
-                            cached ||
-                            new Response("Offline", {
-                                status: 503,
-                                statusText: "Offline",
-                            })
-                        );
-                    });
+                    return caches
+                        .match(request, { ignoreSearch: true })
+                        .then((cachedResponse) => {
+                            return (
+                                cachedResponse ||
+                                caches
+                                    .match("/", { ignoreSearch: true })
+                                    .then((fallback) => {
+                                        return (
+                                            fallback ||
+                                            new Response(
+                                                "<!DOCTYPE html><html><body><h1>Offline</h1><p>Please check your internet connection.</p></body></html>",
+                                                {
+                                                    status: 503,
+                                                    headers: {
+                                                        "Content-Type":
+                                                            "text/html",
+                                                    },
+                                                },
+                                            )
+                                        );
+                                    })
+                            );
+                        });
                 }),
         );
         return;
     }
 
-    // Default: stale-while-revalidate
+    // Default: Stale-while-revalidate for all other standard GET requests (including RSC payloads)
     event.respondWith(
-        caches.match(request).then((cachedResponse) => {
+        caches.match(request, { ignoreSearch: true }).then((cachedResponse) => {
             const fetchPromise = fetch(request)
-                .then((response) => {
-                    if (response.ok) {
-                        const clone = response.clone();
+                .then((networkResponse) => {
+                    if (networkResponse?.ok) {
+                        const clone = networkResponse.clone();
                         caches.open(CACHE_NAME).then((cache) => {
                             cache.put(request, clone);
                         });
                     }
-                    return response;
+                    return networkResponse;
                 })
-                .catch(() => cachedResponse);
+                .catch(() => {
+                    return (
+                        cachedResponse ||
+                        new Response(
+                            JSON.stringify({
+                                error: "Offline - Resource Unavailable",
+                            }),
+                            {
+                                status: 503,
+                                statusText: "Service Unavailable",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                            },
+                        )
+                    );
+                });
 
             return cachedResponse || fetchPromise;
         }),

@@ -1,6 +1,12 @@
 "use client";
 
-import { IconShieldCheck } from "@tabler/icons-react";
+import {
+    IconClipboardList,
+    IconPlus,
+    IconShieldCheck,
+} from "@tabler/icons-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import { useStepNavigation } from "@/hooks/step-context";
 import { useLanguage } from "@/i18n";
 import { cn } from "@/lib/utils";
@@ -10,12 +16,29 @@ import { StepIndicator } from "./step-indicator";
 
 /**
  * Mobile-first app shell with sticky header and scrollable content.
- * Header: app logo/title + language toggle.
+ * Header: app logo/title + tracker toggle + language toggle.
  * Content: centered, max-width constrained, with safe-area padding.
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
     const { t } = useLanguage();
-    const { currentStep } = useStepNavigation();
+    const { currentStep, reset, goToStep } = useStepNavigation();
+    const pathname = usePathname();
+    const router = useRouter();
+
+    const isTrackerRoute = pathname === "/issues" || currentStep === "tracker";
+
+    const handleToggle = () => {
+        if (isTrackerRoute) {
+            reset();
+            if (pathname === "/issues") {
+                router.push("/");
+            } else {
+                goToStep("category");
+            }
+        } else {
+            router.push("/issues");
+        }
+    };
 
     return (
         <div className="flex min-h-dvh flex-col bg-background">
@@ -41,11 +64,42 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                                 {t("app.title")}
                             </h1>
                         </div>
-                        <LanguageToggle />
+                        <div className="flex items-center gap-2">
+                            <Button
+                                type="button"
+                                variant={isTrackerRoute ? "default" : "outline"}
+                                size="sm"
+                                onClick={handleToggle}
+                                className="h-8 gap-1 rounded-lg px-2.5 font-medium text-xs shadow-none active:scale-95"
+                            >
+                                {isTrackerRoute ? (
+                                    <>
+                                        <IconPlus
+                                            size="0.875rem"
+                                            strokeWidth={2.25}
+                                        />
+                                        <span className="hidden sm:inline">
+                                            {t("confirmation.reportAnother")}
+                                        </span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <IconClipboardList
+                                            size="0.875rem"
+                                            strokeWidth={2.25}
+                                        />
+                                        <span>{t("tracker.title")}</span>
+                                    </>
+                                )}
+                            </Button>
+                            <LanguageToggle />
+                        </div>
                     </div>
-                    <div className="mt-3 flex w-full justify-center">
-                        <StepIndicator currentStep={currentStep} />
-                    </div>
+                    {!isTrackerRoute && (
+                        <div className="mt-3 flex w-full justify-center">
+                            <StepIndicator currentStep={currentStep} />
+                        </div>
+                    )}
                 </div>
             </header>
 

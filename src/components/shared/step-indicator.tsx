@@ -24,6 +24,10 @@ export function StepIndicator({ currentStep, className }: StepIndicatorProps) {
     const { t } = useLanguage();
     const currentIndex = STEPS.findIndex((s) => s.key === currentStep);
 
+    if (currentIndex === -1) {
+        return null;
+    }
+
     return (
         <nav
             aria-label={t("a11y.stepProgress", {
