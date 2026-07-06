@@ -24,6 +24,8 @@
 .DS_Store
 *.pem
 AGENTS.md
+.agents
+*-lock.json
 
 # debug
 npm-debug.log*
