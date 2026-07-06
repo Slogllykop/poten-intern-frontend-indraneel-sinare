@@ -16,10 +16,58 @@ const geistMono = Geist_Mono({
     display: "swap",
 });
 
-export const metadata: Metadata = {
-    title: "Novus",
+const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "Novus Civic Platform",
+    alternateName: "Novus",
     description:
-        "Report civic issues in your neighbourhood. Multilingual, offline-capable, and installable.",
+        "Multilingual civic issue reporting progressive web application for reporting local infrastructure and community issues like potholes, water leaks, and electricity hazards.",
+    url: "https://novus.isdevs.cv",
+    applicationCategory: "UtilitiesApplication",
+    operatingSystem: "Any",
+    offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+    },
+    inLanguage: ["en-US", "hi-IN"],
+    featureList: [
+        "Offline-first reporting with IndexedDB storage",
+        "Voice input recognition via Web Speech API",
+        "Bilingual English and Hindi interface with instant toggle",
+        "Instant reference ID generation and status tracking",
+        "Installable Progressive Web App (PWA) with Service Worker",
+    ],
+    creator: {
+        "@type": "Organization",
+        name: "Novus Platform",
+        url: "https://novus.isdevs.cv",
+    },
+};
+
+export const metadata: Metadata = {
+    metadataBase: new URL("https://novus.isdevs.cv"),
+    title: {
+        default: "Novus | Multilingual Civic Issue Reporting PWA",
+        template: "%s | Novus Civic Platform",
+    },
+    description:
+        "Report civic issues in your neighbourhood like potholes, water leaks, electricity hazards, and sanitation. 100% offline-capable, bilingual in English and Hindi, and installable PWA with instant reference tracking.",
+    keywords: [
+        "civic reporting",
+        "pothole report",
+        "neighborhood watch",
+        "PWA",
+        "bilingual civic app",
+        "India civic reporting",
+        "municipal issue tracker",
+        "offline civic form",
+        "Novus",
+    ],
+    authors: [{ name: "Novus Platform Team" }],
+    creator: "Novus Platform",
+    publisher: "Novus Platform",
     applicationName: "Novus",
     appleWebApp: {
         capable: true,
@@ -28,6 +76,34 @@ export const metadata: Metadata = {
     },
     formatDetection: {
         telephone: false,
+    },
+    openGraph: {
+        type: "website",
+        locale: "en_US",
+        alternateLocale: ["hi_IN"],
+        url: "/",
+        title: "Novus | Multilingual Civic Issue Reporting PWA",
+        description:
+            "Report civic issues in your neighbourhood like potholes, water leaks, electricity hazards, and sanitation. 100% offline-capable, bilingual in English and Hindi, and installable PWA.",
+        siteName: "Novus Civic Platform",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "Novus | Multilingual Civic Issue Reporting PWA",
+        description:
+            "Report civic issues in your neighbourhood like potholes, water leaks, electricity hazards, and sanitation. 100% offline-capable, bilingual in English and Hindi, and installable PWA.",
+        creator: "@NovusCivic",
+    },
+    robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+            index: true,
+            follow: true,
+            "max-video-preview": -1,
+            "max-image-preview": "large",
+            "max-snippet": -1,
+        },
     },
 };
 
@@ -51,6 +127,13 @@ export default function RootLayout({
             className={cn(geistSans.variable, geistMono.variable)}
             suppressHydrationWarning
         >
+            <head>
+                <script
+                    type="application/ld+json"
+                    // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD SEO schema injection
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                />
+            </head>
             <body className="flex min-h-dvh flex-col antialiased">
                 <AppProviders>{children}</AppProviders>
             </body>

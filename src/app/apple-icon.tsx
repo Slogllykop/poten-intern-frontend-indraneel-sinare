@@ -1,16 +1,24 @@
 import { ImageResponse } from "next/og";
 
-export const size = {
-    width: 180,
-    height: 180,
-};
-export const contentType = "image/png";
+const APPLE_ICON_SIZES = [57, 60, 72, 76, 114, 120, 144, 152, 167, 180];
 
-export default function AppleIcon() {
+export function generateImageMetadata() {
+    return APPLE_ICON_SIZES.map((size) => ({
+        id: String(size),
+        size: { width: size, height: size },
+        contentType: "image/png",
+    }));
+}
+
+export default async function AppleIcon({ id }: { id: Promise<string> }) {
+    const iconId = await id;
+    const size = parseInt(iconId, 10) || 180;
+    const iconSize = Math.floor(size * 0.55);
+
     return new ImageResponse(
         <div
             style={{
-                fontSize: 96,
+                fontSize: iconSize,
                 background: "linear-gradient(135deg, #059669 0%, #10b981 100%)",
                 width: "100%",
                 height: "100%",
@@ -19,11 +27,12 @@ export default function AppleIcon() {
                 justifyContent: "center",
                 color: "white",
                 borderRadius: "22%",
+                boxShadow: "0 4px 20px rgba(16, 185, 129, 0.4)",
             }}
         >
             <svg
-                width={96}
-                height={96}
+                width={iconSize}
+                height={iconSize}
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -37,7 +46,8 @@ export default function AppleIcon() {
             </svg>
         </div>,
         {
-            ...size,
+            width: size,
+            height: size,
         },
     );
 }

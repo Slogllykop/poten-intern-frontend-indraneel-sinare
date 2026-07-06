@@ -1,24 +1,20 @@
 import { ImageResponse } from "next/og";
 
+const ICON_SIZES = [16, 32, 48, 72, 96, 128, 144, 152, 192, 384, 512];
+
 export function generateImageMetadata() {
-    return [
-        {
-            id: "192",
-            size: { width: 192, height: 192 },
-            contentType: "image/png",
-        },
-        {
-            id: "512",
-            size: { width: 512, height: 512 },
-            contentType: "image/png",
-        },
-    ];
+    return ICON_SIZES.map((size) => ({
+        id: String(size),
+        size: { width: size, height: size },
+        contentType: "image/png",
+    }));
 }
 
 export default async function Icon({ id }: { id: Promise<string> }) {
     const iconId = await id;
-    const size = iconId === "192" ? 192 : 512;
+    const size = parseInt(iconId, 10) || 192;
     const iconSize = Math.floor(size * 0.55);
+    const strokeWidth = size <= 32 ? "2.75" : "2.25";
 
     return new ImageResponse(
         <div
@@ -32,7 +28,10 @@ export default async function Icon({ id }: { id: Promise<string> }) {
                 justifyContent: "center",
                 color: "white",
                 borderRadius: "22%",
-                boxShadow: "0 4px 20px rgba(16, 185, 129, 0.4)",
+                boxShadow:
+                    size > 64
+                        ? "0 4px 20px rgba(16, 185, 129, 0.4)"
+                        : undefined,
             }}
         >
             <svg
@@ -43,7 +42,7 @@ export default async function Icon({ id }: { id: Promise<string> }) {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2.25"
+                strokeWidth={strokeWidth}
                 strokeLinecap="round"
                 strokeLinejoin="round"
             >

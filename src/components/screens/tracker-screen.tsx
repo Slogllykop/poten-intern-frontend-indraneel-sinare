@@ -293,7 +293,7 @@ export function TrackerScreen() {
                                 {/* Card Header / Toggle */}
                                 <AccordionTrigger
                                     showChevron={false}
-                                    className="flex w-full cursor-pointer touch-manipulation select-none flex-col p-5 text-left transition-colors hover:bg-accent/5 hover:no-underline sm:p-6"
+                                    className="flex w-full cursor-pointer touch-manipulation select-none flex-col p-5 text-left transition-colors hover:no-underline sm:p-6"
                                 >
                                     {/* Top Row: Left-Aligned Ref ID + Color-Coded Category Pill, Chevron on Right */}
                                     <div className="flex w-full items-start justify-between gap-3">

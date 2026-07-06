@@ -19,7 +19,7 @@ import { ThemeToggle } from "./theme-toggle";
 /**
  * App shell with two distinct navbars:
  *
- * - Desktop (md+): sticky top bar — logo left, step indicator center, actions right.
+ * - Desktop (md+): sticky top bar - logo left, step indicator center, actions right.
  * - Mobile (<md): minimal sticky top bar + fixed bottom tab bar with Report / My Reports.
  *
  * Dark mode is toggled via ThemeToggle (next-themes).
@@ -128,7 +128,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
             {/* ─────────────────────────────────────────
                 MOBILE TOP BAR (visible only on mobile)
-                Minimal — just logo, step indicator on form flow,
+                Minimal - just logo, step indicator on form flow,
                 and action controls on the right.
             ───────────────────────────────────────── */}
             <header
@@ -157,7 +157,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     </div>
                 </div>
 
-                {/* Mobile step indicator — form flow only */}
+                {/* Mobile step indicator - form flow only */}
                 <AnimatePresence initial={false}>
                     {isFormFlow && (
                         <motion.div
@@ -198,7 +198,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                         "pb-28 md:pb-8", // reserve space for mobile bottom nav
                     )}
                 >
-                    {/* Desktop Step Indicator — heroic editorial placement above the form */}
+                    {/* Desktop Step Indicator - heroic editorial placement above the form */}
                     {isFormFlow && (
                         <div className="mb-6 hidden items-center justify-center border-border/40 border-b pb-8 md:flex">
                             <StepIndicator currentStep={currentStep} />
@@ -253,7 +253,7 @@ function NavPill({
                     : "text-muted-foreground hover:text-foreground",
             )}
         >
-            {/* Sliding active background — shared layoutId slides between pills */}
+            {/* Sliding active background - shared layoutId slides between pills */}
             {active && (
                 <motion.span
                     layoutId="nav-pill-active"

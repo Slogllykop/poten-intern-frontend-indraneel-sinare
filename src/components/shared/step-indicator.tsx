@@ -37,7 +37,7 @@ export function StepIndicator({ currentStep, className }: StepIndicatorProps) {
 
                 return (
                     <div key={stepKey} className="flex items-start">
-                        {/* Dot and Label Column — isolated so label is centered mathematically under the dot */}
+                        {/* Dot and Label Column - isolated so label is centered mathematically under the dot */}
                         <div className="flex flex-col items-center gap-1.5">
                             <div className="flex h-4 items-center justify-center">
                                 <div

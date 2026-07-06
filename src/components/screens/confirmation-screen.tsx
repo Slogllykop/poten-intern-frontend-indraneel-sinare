@@ -241,7 +241,7 @@ export function ConfirmationScreen() {
                 )}
             </motion.div>
 
-            {/* Reset / Tracker action buttons — hidden on mobile since mobile bottom nav handles this */}
+            {/* Reset / Tracker action buttons - hidden on mobile since mobile bottom nav handles this */}
             <motion.div
                 variants={itemVariants}
                 className="mt-auto hidden md:flex md:justify-center md:gap-4 md:pt-8"
