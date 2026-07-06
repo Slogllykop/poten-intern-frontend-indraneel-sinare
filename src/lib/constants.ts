@@ -134,7 +134,7 @@ export const INITIAL_DRAFT: SubmissionDraft = {
 
 export const VOICE_CONFIG = {
     MIN_DESCRIPTION_LENGTH: 10,
-    ENABLE_VOICE_RECOGNITION: false,
+    ENABLE_VOICE_RECOGNITION: true,
     BAR_COUNT: 32,
     BAR_GAP: 2,
     MIN_BAR_HEIGHT: 2,
