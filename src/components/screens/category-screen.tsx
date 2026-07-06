@@ -100,11 +100,13 @@ export function CategoryScreen() {
                     return (
                         <motion.button
                             key={cat.id}
+                            type="button"
                             variants={itemVariants}
                             whileTap={{ scale: 0.97 }}
                             onClick={() => selectCategory(cat.id)}
+                            onTap={() => selectCategory(cat.id)}
                             className={cn(
-                                "flex flex-col items-center justify-center gap-3 p-4",
+                                "flex touch-manipulation flex-col items-center justify-center gap-3 p-4",
                                 "rounded-xl border transition-all duration-200",
                                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                                 // Hover lift only for pointer devices (not touch)
@@ -136,9 +138,10 @@ export function CategoryScreen() {
 
             <div className="mt-auto pt-4">
                 <Button
+                    type="button"
                     onClick={goNext}
                     size="lg"
-                    className="w-full text-base shadow-sm"
+                    className="w-full touch-manipulation text-base shadow-sm"
                     disabled={!selectedCategory}
                 >
                     {t("nav.next")}

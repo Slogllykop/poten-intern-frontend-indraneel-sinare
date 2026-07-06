@@ -45,6 +45,11 @@ const translations: Translations = {
     "details.voiceListening": "सुन रहा है...",
     "details.voiceUnsupported": "इस ब्राउज़र में आवाज़ इनपुट उपलब्ध नहीं है",
     "details.voiceError": "आवाज़ इनपुट में त्रुटि। कृपया पुनः प्रयास करें।",
+    "details.voiceErrorPermission":
+        "माइक की अनुमति नहीं मिली। कृपया ब्राउज़र में अनुमति दें।",
+    "details.voiceErrorNetwork": "आवाज़ पहचानने के लिए इंटरनेट कनेक्शन आवश्यक है।",
+    "details.voiceErrorNoMic": "आपके डिवाइस पर कोई माइक्रोफ़ोन नहीं मिला।",
+    "details.voiceErrorService": "आवाज़ सेवा उपलब्ध नहीं है। कृपया बाद में प्रयास करें।",
     "details.minChars": "न्यूनतम 10 अक्षर आवश्यक हैं",
     "details.selectedCategory": "श्रेणी",
 

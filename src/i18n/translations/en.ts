@@ -44,6 +44,13 @@ const translations = {
     "details.voiceListening": "Listening...",
     "details.voiceUnsupported": "Voice input is not supported in this browser",
     "details.voiceError": "Voice input error. Please try again.",
+    "details.voiceErrorPermission":
+        "Microphone access denied. Please allow microphone permissions.",
+    "details.voiceErrorNetwork":
+        "Voice recognition requires an internet connection.",
+    "details.voiceErrorNoMic": "No microphone detected on your device.",
+    "details.voiceErrorService":
+        "Speech service unavailable. Please try again later.",
     "details.minChars": "Minimum 10 characters required",
     "details.selectedCategory": "Category",
 

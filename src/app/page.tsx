@@ -1,61 +1,27 @@
 "use client";
 
 import { CategoryScreen } from "@/components/screens/category-screen";
+import { DetailsScreen } from "@/components/screens/details-screen";
 import { AppShell } from "@/components/shared/app-shell";
 import { ScreenTransition } from "@/components/shared/screen-transition";
-
 import { Button } from "@/components/ui/button";
 import { useStepNavigation } from "@/hooks/step-context";
 import { useLanguage } from "@/i18n";
 
 /**
  * Main page: renders the 3-screen flow inside the app shell.
- * Each screen is a placeholder until Milestones 3-5 build them out.
+ * Screen 3 (confirmation) still uses a placeholder until Milestone 5.
  */
 export default function Home() {
     const { t } = useLanguage();
-    const { currentStep, direction, goNext, goBack } = useStepNavigation();
+    const { currentStep, direction, goBack } = useStepNavigation();
 
     return (
         <AppShell>
             <ScreenTransition stepKey={currentStep} direction={direction}>
                 {currentStep === "category" && <CategoryScreen />}
 
-                {currentStep === "details" && (
-                    <div className="flex flex-1 flex-col gap-6">
-                        <div>
-                            <h2 className="font-semibold text-xl tracking-tight">
-                                {t("details.title")}
-                            </h2>
-                            <p className="mt-1 text-muted-foreground text-sm">
-                                {t("details.subtitle")}
-                            </p>
-                        </div>
-
-                        {/* Placeholder - replaced in Milestone 4 */}
-                        <div className="flex-1 rounded-xl border border-border border-dashed p-6 text-center text-muted-foreground text-sm">
-                            {t("details.descriptionPlaceholder")}
-                        </div>
-
-                        <div className="mt-auto flex gap-3 pt-4">
-                            <Button
-                                onClick={goBack}
-                                variant="outline"
-                                size="lg"
-                                className="flex-1"
-                            >
-                                {t("nav.back")}
-                            </Button>
-                            <Button
-                                onClick={goNext}
-                                size="lg"
-                                className="flex-1"
-                            >
-                                {t("nav.next")}
-                            </Button>
-                        </div>
-                    </div>
-                )}
+                {currentStep === "details" && <DetailsScreen />}
 
                 {currentStep === "confirmation" && (
                     <div className="flex flex-1 flex-col items-center gap-6 text-center">
