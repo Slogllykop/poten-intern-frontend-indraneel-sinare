@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { CATEGORIES } from "@/hooks/use-categories";
 import { useSubmission } from "@/hooks/use-submission";
 import { useLanguage } from "@/i18n";
+import { cn } from "@/lib/utils";
 
 /**
  * Formats timestamps cleanly for bilingual support.
@@ -21,12 +22,20 @@ function formatSubmissionTimestamp(
     timestamp: number,
     locale: "en" | "hi",
 ): string {
-    const date = new Date(timestamp);
+    const d = new Date(timestamp);
+
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    const day = pad(d.getDate());
+    const year = d.getFullYear();
+    let hours = d.getHours();
+    const mins = pad(d.getMinutes());
+    const isPm = hours >= 12;
+    hours = hours % 12 || 12;
 
     if (locale === "hi") {
-        const monthsHi = [
+        const hindiMonths = [
             "जनवरी",
-            "फ़रवरी",
+            "फरवरी",
             "मार्च",
             "अप्रैल",
             "मई",
@@ -34,94 +43,75 @@ function formatSubmissionTimestamp(
             "जुलाई",
             "अगस्त",
             "सितंबर",
-            "अक्तूबर",
+            "अक्टूबर",
             "नवंबर",
             "दिसंबर",
         ];
-        const day = date.getDate();
-        const month = monthsHi[date.getMonth()];
-        const year = date.getFullYear();
-
-        let hours = date.getHours();
-        const minutes = date.getMinutes().toString().padStart(2, "0");
-        const period = hours >= 12 ? "अपराह्न" : "पूर्वाह्न";
-        hours = hours % 12 || 12;
-
-        return `${day} ${month} ${year}, ${hours}:${minutes} ${period}`;
+        const month = hindiMonths[d.getMonth()];
+        const amPm = isPm ? "दोपहर/शाम" : "सुबह";
+        return `${day} ${month} ${year}, ${amPm} ${hours}:${mins} बजे`;
     }
 
-    return new Intl.DateTimeFormat("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-    }).format(date);
+    const monthNames = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+    ];
+    const month = monthNames[d.getMonth()];
+    const amPm = isPm ? "pm" : "am";
+    return `${day} ${month} ${year}, ${hours}:${mins} ${amPm}`;
 }
 
-// Staggered container animation
 const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    show: {
+    hidden: { opacity: 0, y: 12 },
+    visible: {
         opacity: 1,
+        y: 0,
         transition: {
+            duration: 0.35,
+            ease: [0.23, 1, 0.32, 1],
             staggerChildren: 0.08,
         },
     },
+    exit: { opacity: 0, y: -12, transition: { duration: 0.2 } },
 };
 
 const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 12 },
-    show: {
-        opacity: 1,
-        y: 0,
-        transition: { type: "spring", stiffness: 400, damping: 30 },
-    },
+    hidden: { opacity: 0, y: 8 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
 };
 
-const iconVariants: Variants = {
-    hidden: { scale: 0.5, opacity: 0 },
-    show: {
-        scale: 1,
-        opacity: 1,
-        transition: {
-            type: "spring",
-            stiffness: 350,
-            damping: 20,
-            delay: 0.1,
-        },
-    },
-};
-
+/**
+ * Screen 3: Confirmation
+ * Displays reference ID with copy button, summary card, and option to report another.
+ */
 export function ConfirmationScreen() {
-    const { t, locale } = useLanguage();
+    const { t } = useLanguage();
     const { lastSubmission, resetFlow } = useSubmission();
     const [copied, setCopied] = useState(false);
 
-    const handleCopy = useCallback(() => {
-        if (!lastSubmission?.referenceId) return;
-        navigator.clipboard.writeText(lastSubmission.referenceId).then(() => {
+    const handleCopy = useCallback(async () => {
+        if (!lastSubmission) return;
+        try {
+            await navigator.clipboard.writeText(lastSubmission.referenceId);
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
-        });
-    }, [lastSubmission?.referenceId]);
+        } catch {
+            // fallback if clipboard API not permitted
+        }
+    }, [lastSubmission]);
 
     if (!lastSubmission) {
-        return (
-            <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
-                <p className="text-muted-foreground text-sm">
-                    {t("tracker.empty")}
-                </p>
-                <Button
-                    type="button"
-                    onClick={resetFlow}
-                    className="touch-manipulation"
-                >
-                    {t("confirmation.reportAnother")}
-                </Button>
-            </div>
-        );
+        return null;
     }
 
     const categoryObj = CATEGORIES.find(
@@ -130,71 +120,66 @@ export function ConfirmationScreen() {
     const CategoryIcon = categoryObj?.icon;
     const formattedDate = formatSubmissionTimestamp(
         lastSubmission.createdAt,
-        locale,
+        lastSubmission.locale,
     );
 
     return (
         <motion.div
+            key="step-3"
             variants={containerVariants}
             initial="hidden"
-            animate="show"
-            className="flex flex-1 flex-col gap-6"
+            animate="visible"
+            exit="exit"
+            className="flex flex-1 flex-col space-y-6"
         >
-            {/* Success Icon & Header */}
-            <div className="flex flex-col items-center text-center">
-                <motion.div
-                    variants={iconVariants}
-                    className="flex size-16 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 shadow-sm dark:bg-emerald-500/20 dark:text-emerald-400"
-                >
-                    <IconCircleCheck size="2.5rem" strokeWidth={1.75} />
-                </motion.div>
-                <motion.h2
-                    variants={itemVariants}
-                    className="mt-4 font-bold text-2xl tracking-tight"
-                >
+            {/* Header / Success Banner */}
+            <motion.div variants={itemVariants} className="text-center">
+                <div className="mx-auto mb-3 flex size-14 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
+                    <IconCircleCheck size="2rem" strokeWidth={2} />
+                </div>
+                <h2 className="font-bold text-2xl text-foreground tracking-tight">
                     {t("confirmation.title")}
-                </motion.h2>
-                <motion.p
-                    variants={itemVariants}
-                    className="mt-1 text-muted-foreground text-sm"
-                >
+                </h2>
+                <p className="mt-1 text-muted-foreground text-sm">
                     {t("confirmation.subtitle")}
-                </motion.p>
-            </div>
+                </p>
+            </motion.div>
 
             {/* Reference ID Card */}
             <motion.div
                 variants={itemVariants}
-                className="flex items-center justify-between rounded-xl border border-border bg-card p-4 shadow-sm"
+                className="flex items-center justify-between rounded-xl border border-border/80 bg-card p-4 shadow-sm"
             >
-                <div>
+                <div className="space-y-0.5">
                     <span className="font-medium text-muted-foreground text-xs uppercase tracking-wider">
                         {t("confirmation.referenceId")}
                     </span>
-                    <p className="mt-0.5 font-mono font-semibold text-primary text-xl tracking-wide">
+                    <div className="font-bold font-mono text-foreground text-lg tracking-wide">
                         {lastSubmission.referenceId}
-                    </p>
+                    </div>
                 </div>
+
                 <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={handleCopy}
-                    className="touch-manipulation gap-1.5"
+                    className="touch-manipulation gap-1.5 font-medium text-xs shadow-none active:scale-95"
                 >
                     {copied ? (
                         <>
                             <IconCheck
                                 size="1rem"
-                                className="text-emerald-600"
+                                className="text-emerald-600 dark:text-emerald-400"
+                                strokeWidth={2.5}
                             />
-                            <span className="font-medium text-emerald-600">
+                            <span className="text-emerald-600 dark:text-emerald-400">
                                 {t("confirmation.copied")}
                             </span>
                         </>
                     ) : (
                         <>
-                            <IconCopy size="1rem" />
+                            <IconCopy size="1rem" strokeWidth={2} />
                             <span>{t("confirmation.copy")}</span>
                         </>
                     )}
@@ -248,8 +233,17 @@ export function ConfirmationScreen() {
                     <span className="text-muted-foreground">
                         {t("confirmation.status")}
                     </span>
-                    <span className="col-span-2 inline-flex w-fit items-center rounded-full bg-emerald-500/10 px-2 py-0.5 font-medium text-[11px] text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
-                        {t("confirmation.statusSubmitted")}
+                    <span
+                        className={cn(
+                            "col-span-2 inline-flex w-fit items-center rounded-full px-2 py-0.5 font-medium text-[11px]",
+                            lastSubmission.status === "pending"
+                                ? "bg-amber-500/10 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400"
+                                : "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400",
+                        )}
+                    >
+                        {lastSubmission.status === "pending"
+                            ? t("confirmation.statusOffline")
+                            : t("confirmation.statusSubmitted")}
                     </span>
                 </div>
 

@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useLanguage } from "@/i18n";
+import { isOnline } from "@/layers/network";
 import { saveSubmission } from "@/layers/storage";
 import type { Submission } from "@/types";
 import { useStepNavigation } from "./step-context";
@@ -62,13 +63,14 @@ export function useSubmission() {
 
         try {
             const referenceId = generateReferenceId();
+            const status = isOnline() ? "submitted" : "pending";
             const submissionData: Omit<Submission, "id"> = {
                 referenceId,
                 category: draft.category,
                 description: draft.description.trim(),
                 photo: draft.photo,
                 locale,
-                status: "submitted",
+                status,
                 createdAt: Date.now(),
             };
 
