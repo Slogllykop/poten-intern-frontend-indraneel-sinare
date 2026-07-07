@@ -27,18 +27,6 @@ export function DetailsScreen() {
     const { draft, setDescription, goBack } = useStepNavigation();
     const { submit, isSubmitting, error: submitError } = useSubmission();
     const { isOnline } = useOfflineSync();
-    const {
-        voiceState,
-        voiceErrorKey,
-        interimText,
-        analyserNode,
-        toggleListening,
-        isSupported,
-        isListening,
-    } = useVoiceInput();
-
-    const isMicDisabled = !isSupported || !isOnline;
-
     // react-hook-form with Zod validation
     const {
         register,
@@ -54,6 +42,22 @@ export function DetailsScreen() {
         mode: "onChange",
     });
 
+    const {
+        voiceState,
+        voiceErrorKey,
+        interimText,
+        analyserNode,
+        toggleListening,
+        isSupported,
+        isListening,
+    } = useVoiceInput((newText) => {
+        setValue("description", newText, {
+            shouldValidate: true,
+        });
+    });
+
+    const isMicDisabled = !isSupported || !isOnline;
+
     const description = watch("description");
     const charCount = description.length;
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -62,15 +66,6 @@ export function DetailsScreen() {
     useEffect(() => {
         setDescription(description);
     }, [description, setDescription]);
-
-    // When voice input appends text, sync it into RHF
-    useEffect(() => {
-        if (draft.description !== description) {
-            setValue("description", draft.description, {
-                shouldValidate: true,
-            });
-        }
-    }, [draft.description, description, setValue]);
 
     // Register the textarea with RHF and merge the ref
     const { ref: rhfRef, ...registerRest } = register("description");

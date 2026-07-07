@@ -23,7 +23,7 @@ export type VoiceState = "idle" | "listening" | "error" | "unsupported";
  * Both start and stop together. The AnalyserNode is exposed so the
  * Waveform component can read frequency data in a rAF loop.
  */
-export function useVoiceInput() {
+export function useVoiceInput(onTranscript?: (text: string) => void) {
     const { locale } = useLanguage();
     const { draft, setDescription } = useStepNavigation();
 
@@ -82,7 +82,11 @@ export function useVoiceInput() {
                 // Append finalized text to the description
                 const current = descriptionRef.current;
                 const separator = current && !current.endsWith(" ") ? " " : "";
-                setDescription(current + separator + transcript);
+                const newText = current + separator + transcript;
+                setDescription(newText);
+                if (onTranscript) {
+                    onTranscript(newText);
+                }
                 setInterimText("");
             },
             onInterimResult: (transcript) => {
@@ -115,7 +119,7 @@ export function useVoiceInput() {
 
         recognitionRef.current = recognition;
         startListening(recognition);
-    }, [locale, setDescription, cleanup]);
+    }, [locale, setDescription, cleanup, onTranscript]);
 
     const toggleListening = useCallback(() => {
         if (state === "unsupported") return;
