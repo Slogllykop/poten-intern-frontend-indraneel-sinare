@@ -7,66 +7,16 @@ import {
     IconCopy,
     IconPlus,
 } from "@tabler/icons-react";
-import { motion, type Variants } from "motion/react";
+import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useSubmission } from "@/hooks/use-submission";
 import { useLanguage } from "@/i18n";
-import {
-    CATEGORIES,
-    MONTH_NAMES_HI,
-    MONTH_NAMES_SHORT_EN,
-} from "@/lib/constants";
+import { containerVariants, itemVariants } from "@/lib/animation-variants";
+import { CATEGORIES } from "@/lib/constants";
+import { formatSubmissionTimestamp } from "@/lib/format-timestamp";
 import { cn } from "@/lib/utils";
-
-/**
- * Formats timestamps cleanly for bilingual support.
- * Avoids browser quirks where Intl.DateTimeFormat in hi-IN outputs English "pm" or abbreviated months.
- */
-function formatSubmissionTimestamp(
-    timestamp: number,
-    locale: "en" | "hi",
-): string {
-    const d = new Date(timestamp);
-
-    const pad = (n: number) => n.toString().padStart(2, "0");
-    const day = pad(d.getDate());
-    const year = d.getFullYear();
-    let hours = d.getHours();
-    const mins = pad(d.getMinutes());
-    const isPm = hours >= 12;
-    hours = hours % 12 || 12;
-
-    if (locale === "hi") {
-        const month = MONTH_NAMES_HI[d.getMonth()];
-        const amPm = isPm ? "दोपहर" : "सुबह";
-        return `${day} ${month} ${year}, ${amPm} ${hours}:${mins}`;
-    }
-
-    const month = MONTH_NAMES_SHORT_EN[d.getMonth()];
-    const amPm = isPm ? "PM" : "AM";
-    return `${day} ${month} ${year}, ${hours}:${mins} ${amPm}`;
-}
-
-const containerVariants: Variants = {
-    hidden: { opacity: 0, y: 12 },
-    visible: {
-        opacity: 1,
-        y: 0,
-        transition: {
-            duration: 0.35,
-            ease: [0.23, 1, 0.32, 1],
-            staggerChildren: 0.08,
-        },
-    },
-    exit: { opacity: 0, y: -12, transition: { duration: 0.2 } },
-};
-
-const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 8 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-};
 
 /**
  * Screen 3: Confirmation
