@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Noto_Sans_Devanagari } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from "@/components/providers/app-providers";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,13 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
     variable: "--font-geist-mono",
     subsets: ["latin"],
+    display: "swap",
+});
+
+const notoDevanagari = Noto_Sans_Devanagari({
+    variable: "--font-devanagari",
+    subsets: ["devanagari"],
+    weight: ["400", "500", "600", "700"],
     display: "swap",
 });
 
@@ -124,7 +131,11 @@ export default function RootLayout({
     return (
         <html
             lang="en"
-            className={cn(geistSans.variable, geistMono.variable)}
+            className={cn(
+                geistSans.variable,
+                geistMono.variable,
+                notoDevanagari.variable,
+            )}
             suppressHydrationWarning
         >
             <head>

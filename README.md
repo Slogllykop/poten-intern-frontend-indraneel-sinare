@@ -96,7 +96,7 @@ flowchart LR
 
 | Tool | Approx. Messages | Purpose |
 |------|---------------------------|---------|
-| DeepMind / Antigravity | ~15 messages | I used the AI as a pair programmer to speed things up. I decided all the core architectural decisions, designed the UI flow, and decided on the features and scope of it. I then used the AI to actually scaffold out the React components, wire up IndexedDB, and handle the boilerplate for the PWA and Framer Motion animations based on what I wanted. Sort of as a connector between different apis, libraries, and web features. |
+| DeepMind / Antigravity | ~15-20 messages | I used the AI as a pair programmer to speed things up. I decided all the core architectural decisions, designed the UI flow, and decided on the features and scope of it. I then used the AI to actually scaffold out the React components, wire up IndexedDB, and handle the boilerplate for the PWA and Framer Motion animations based on what I wanted. Sort of as a connector between different apis, libraries, and web features. |
 
 ## Accessibility & Performance
 
